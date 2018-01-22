@@ -4,12 +4,15 @@ import android.support.v7.app.ActionBar;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.evrencoskun.tableview.TableView;
 import com.hotteam67.firebasescouter.firebase.FirebaseHelper;
-import com.hotteam67.firebasescouter.firebase.RawTableHandler;
+import com.hotteam67.firebasescouter.firebase.DataTableProcessor;
 import com.hotteam67.firebasescouter.tableview.MainTableAdapter;
 import com.hotteam67.firebasescouter.tableview.MyTableViewListener;
 
@@ -21,6 +24,11 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressDialog mProgressDialog;
 
+
+    private ImageButton settingsButton;
+    private ImageButton refreshButton;
+
+    private EditText teamSearchView;
 
     public MainActivity() {
         // Required empty public constructor
@@ -42,6 +50,40 @@ public class MainActivity extends AppCompatActivity {
         bar.setCustomView(finalView);
         bar.setDisplayShowCustomEnabled(true);
 
+        settingsButton = finalView.findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSettingsButton();
+            }
+        });
+
+        refreshButton = finalView.findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRefreshButton();
+            }
+        });
+
+        teamSearchView = finalView.findViewById(R.id.teamNumberSearch);
+        teamSearchView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
         mTableView = findViewById(R.id.mainTableView);
 
         // Create TableView Adapter
@@ -62,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Object call() throws Exception {
 
-                RawTableHandler tmpTableHandler = new RawTableHandler(model.getResult());
+                DataTableProcessor tmpTableHandler = new DataTableProcessor(model.getResult());
                 mTableAdapter.setAllItems(
                         tmpTableHandler.GetColumns(),
                         tmpTableHandler.GetRowHeaders(),
@@ -71,6 +113,16 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
         }, getAssets());
+    }
+
+    private void onRefreshButton()
+    {
+
+    }
+
+    private void onSettingsButton()
+    {
+
     }
 
     public void showProgressDialog() {

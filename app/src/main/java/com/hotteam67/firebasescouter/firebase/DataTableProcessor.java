@@ -14,15 +14,15 @@ import java.util.List;
  * Created by Jakob on 1/18/2018.
  */
 
-public class RawTableHandler {
+public class DataTableProcessor {
     private List<ColumnHeaderModel> mColumnHeaderList;
     private List<List<CellModel>> mCellList;
     private List<RowHeaderModel> mRowHeaderList;
 
-    private String teamNumberSearchTerm;
+    private String teamNumberSearchTerm = "";
     private final String TeamNumber = "Team Number";
 
-    public RawTableHandler(HashMap<String, Object> rawData)
+    public DataTableProcessor(HashMap<String, Object> rawData)
     {
         /*
         Load the Raw Data into model
@@ -90,6 +90,13 @@ public class RawTableHandler {
 
             ++row_id;
         }
+    }
+
+    public DataTableProcessor(List<ColumnHeaderModel> columnNames, List<List<CellModel>> cellValues, List<RowHeaderModel> rowNames)
+    {
+        mColumnHeaderList = columnNames;
+        mCellList = cellValues;
+        mRowHeaderList = rowNames;
     }
 
 
