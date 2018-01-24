@@ -1,4 +1,4 @@
-package com.hotteam67.firebasescouter.tableview.tablemodel;
+package com.hotteam67.firebaseviewer.tableview.tablemodel;
 
 import com.evrencoskun.tableview.sort.ISortableModel;
 

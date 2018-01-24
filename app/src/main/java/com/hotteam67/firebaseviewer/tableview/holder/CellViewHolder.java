@@ -1,4 +1,4 @@
-package com.hotteam67.firebasescouter.tableview.holder;
+package com.hotteam67.firebaseviewer.tableview.holder;
 
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
@@ -7,8 +7,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder;
-import com.hotteam67.firebasescouter.R;
-import com.hotteam67.firebasescouter.tableview.tablemodel.CellModel;
+import com.hotteam67.firebaseviewer.R;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 
 /**
  * Created by evrencoskun on 1.12.2017.

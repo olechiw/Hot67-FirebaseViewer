@@ -1,16 +1,15 @@
-package com.hotteam67.firebasescouter.firebase;
+package com.hotteam67.firebaseviewer.firebase;
 
 import android.util.Log;
 
-import com.hotteam67.firebasescouter.tableview.tablemodel.CellModel;
-import com.hotteam67.firebasescouter.tableview.tablemodel.ColumnHeaderModel;
-import com.hotteam67.firebasescouter.tableview.tablemodel.RowHeaderModel;
+import com.annimon.stream.Stream;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Jakob on 1/19/2018.
@@ -22,7 +21,7 @@ public class CalculatedTableHandler {
     private List<String> columnsNames;
 
     private DataTableProcessor calculatedDataTable;
-    private HashMap<String, Integer> calculatedColumnsDataTableColumns;
+    private HashMap<String, Integer> calculatedColumnHeaders;
     private List<Integer> calculatedColumnIndices;
 
     public final static class Calculation
@@ -54,10 +53,12 @@ public class CalculatedTableHandler {
         List<List<CellModel>> calcCells = new ArrayList<>();
         List<RowHeaderModel> calcRowHeaders = new ArrayList<>();
 
+        List<RowHeaderModel> rawRowHeaders = rawDataTable.GetRowHeaders();
+
         /*
         Load calculated column names
          */
-        calculatedColumnsDataTableColumns = calculatedColumns;
+        calculatedColumnHeaders = calculatedColumns;
         for (HashMap.Entry<String, Integer> entry : calculatedColumns.entrySet())
         {
             String calculatedName = getCalculatedColumnName(entry.getKey(), entry.getValue());
@@ -70,9 +71,11 @@ public class CalculatedTableHandler {
         List<String> teamNumbers = new ArrayList<>();
 
         // Basically linq, query all of the distinct team numbers and store them
-        teamNumbers.addAll(rawDataTable.GetCells().stream()
-                .map(x -> x.get(0).getContent().toString())
-                .distinct().collect(Collectors.toList()));
+        Log.d("FirebaseScouter", "Finding unique teams from rowheader of size: " + rawRowHeaders.size());
+        // THIS IS ZERO FOR SOME REASON
+        teamNumbers.addAll(Stream.of(rawRowHeaders)
+                .map(x -> x.getData())
+                .distinct().toList());
 
         /*
         Create a calculated row for each teamnumber
@@ -80,10 +83,12 @@ public class CalculatedTableHandler {
         int current_row = 0;
         for (String teamNumber : teamNumbers)
         {
+            Log.d("FirebaseScouter", "Doing calculations for teamnumber: " + teamNumber);
             // Get all matches for team number
-            List<List<CellModel>> matches = rawDataTable.GetCells().stream()
-                    .filter(x -> x.get(0).getContent().toString() == teamNumber)
-                    .collect(Collectors.toList());
+            List<List<CellModel>> matches = Stream.of(rawDataTable.GetCells())
+                    .filter(x ->
+                            rawRowHeaders.get(rawDataTable.GetCells().indexOf(x))
+                    .getData().equals(teamNumber)).toList();
 
             List<CellModel> row = new ArrayList<>();
             int currentCalculatedColumn = 0;
@@ -94,7 +99,7 @@ public class CalculatedTableHandler {
                 currentCalculatedColumn++;
 
                 List<String> values = new ArrayList<>();
-                values.addAll(matches.stream().map(x ->
+                values.addAll(Stream.of(matches).map(x ->
                         /*
                         Get the calculated column index, and use it to create a list of all of the
                         values for this team. The indices correspond with the entry for calculation
@@ -102,10 +107,11 @@ public class CalculatedTableHandler {
                          */
                         x.get(rawColumnIndex)
                                 .getContent().toString()
-                ).collect(Collectors.toList()));
+                ).toList());
 
                 // Calculate
                 Double value = doCalculatedColumn(columnsNames.get(rawColumnIndex), values, entry.getValue());
+                value = Math.floor(value * 1000) / 1000;
                 // Add cell to row
                 row.add(new CellModel(current_row + "_" + current_column, value.toString()));
 
@@ -117,6 +123,23 @@ public class CalculatedTableHandler {
 
             current_row++;
         }
+
+        calculatedDataTable = new DataTableProcessor(calcColumnHeaders, calcCells, calcRowHeaders);
+    }
+
+    public DataTableProcessor GetProcessor()
+    {
+        return calculatedDataTable;
+    }
+
+    public HashMap<String, Integer> GetColumns()
+    {
+        return calculatedColumnHeaders;
+    }
+
+    public List<Integer> GetColumnIndices()
+    {
+        return calculatedColumnIndices;
     }
 
     public static double doCalculatedColumn(String columnName, List<String> columnValues,
@@ -128,9 +151,9 @@ public class CalculatedTableHandler {
             {
                 try
                 {
-                    return columnValues.stream()
-                            // Convert to number
-                            .mapToDouble(CalculatedTableHandler::SafeConvert)
+                    return Stream.of(columnValues)
+                            // Convert to a number
+                            .mapToDouble(CalculatedTableHandler::ConvertToDouble)
                             .average().getAsDouble();
                 }
                 catch (Exception e)
@@ -138,15 +161,15 @@ public class CalculatedTableHandler {
                     e.printStackTrace();
                     Log.e("FirebaseScouter",
                             "Failed to do average calculation on column: " + columnName);
+                    return -1;
                 }
-                break;
             }
             case Calculation.MAXIMUM:
                 try
                 {
-                    return columnValues.stream()
+                    return Stream.of(columnValues)
                             // Convert to number
-                            .mapToDouble(CalculatedTableHandler::SafeConvert)
+                            .mapToDouble(CalculatedTableHandler::ConvertToDouble)
                             .max().getAsDouble();
                 }
                 catch (Exception e)
@@ -154,14 +177,14 @@ public class CalculatedTableHandler {
                     e.printStackTrace();
                     Log.e("FirebaseScouter",
                             "Failed to do max calculation on column: " + columnName);
+                    return -1;
                 }
-                break;
             case Calculation.MINIMUM:
                 try
                 {
-                    return columnValues.stream()
+                    return Stream.of(columnValues)
                             // Convert to number
-                            .mapToDouble(CalculatedTableHandler::SafeConvert)
+                            .mapToDouble(CalculatedTableHandler::ConvertToDouble)
                             .min().getAsDouble();
                 }
                 catch (Exception e)
@@ -169,22 +192,26 @@ public class CalculatedTableHandler {
                     e.printStackTrace();
                     Log.e("FirebaseScouter",
                             "Failed to do max calculation on column: " + columnName);
+                    return -1;
                 }
-                break;
+            default:
+                return -1;
         }
-        return 0;
     }
 
-    public static double SafeConvert(String value)
+    /*
+    Safely converts either a boolean or number string to a double, for averaging, minimizing and
+    maximizing
+     */
+    public static double ConvertToDouble(String s)
     {
-        try
-        {
-            return Double.valueOf(value);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return 0;
+        switch (s) {
+            case "true":
+                return 1;
+            case "false":
+                return 0;
+            default:
+                return Double.valueOf("s");
         }
     }
 

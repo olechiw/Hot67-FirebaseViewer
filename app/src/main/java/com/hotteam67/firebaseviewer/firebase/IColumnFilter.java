@@ -1,6 +1,4 @@
-package com.hotteam67.firebasescouter.firebase;
-
-import java.util.concurrent.Callable;
+package com.hotteam67.firebaseviewer.firebase;
 
 /**
  * Created by Jakob on 1/17/2018.

@@ -1,14 +1,13 @@
-package com.hotteam67.firebasescouter.tableview.tablemodel;
+package com.hotteam67.firebaseviewer.tableview.tablemodel;
 
 /**
  * Created by evrencoskun on 27.11.2017.
  */
 
-public class ColumnHeaderModel {
-
+public class RowHeaderModel {
     private String mData;
 
-    public ColumnHeaderModel(String mData) {
+    public RowHeaderModel(String mData) {
         this.mData = mData;
     }
 

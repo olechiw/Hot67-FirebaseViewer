@@ -1,4 +1,4 @@
-package com.hotteam67.firebasescouter.tableview;
+package com.hotteam67.firebaseviewer.tableview;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

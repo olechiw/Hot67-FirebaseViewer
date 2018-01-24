@@ -1,22 +1,23 @@
-package com.hotteam67.firebasescouter.tableview;
+package com.hotteam67.firebaseviewer.tableview;
 
 import android.content.Context;
+import android.inputmethodservice.Keyboard;
+import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter;
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder;
-import com.hotteam67.firebasescouter.R;
-import com.hotteam67.firebasescouter.firebase.IColumnFilter;
-import com.hotteam67.firebasescouter.tableview.holder.CellViewHolder;
-import com.hotteam67.firebasescouter.tableview.holder.ColumnHeaderViewHolder;
-import com.hotteam67.firebasescouter.tableview.tablemodel.CellModel;
-import com.hotteam67.firebasescouter.tableview.tablemodel.ColumnHeaderModel;
-import com.hotteam67.firebasescouter.tableview.tablemodel.RowHeaderModel;
+import com.hotteam67.firebaseviewer.R;
+import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
+import com.hotteam67.firebaseviewer.firebase.IColumnFilter;
+import com.hotteam67.firebaseviewer.tableview.holder.CellViewHolder;
+import com.hotteam67.firebaseviewer.tableview.holder.ColumnHeaderViewHolder;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,11 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
             // Get the holder to update cell item text
             ((CellViewHolder) holder).setCellModel(cell, xPosition);
         }
+    }
+
+    public void setAllItems(DataTableProcessor table)
+    {
+        setAllItems(table.GetColumns(), table.GetRowHeaders(), table.GetCells());
     }
 
     @Override

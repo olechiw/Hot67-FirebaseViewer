@@ -1,4 +1,4 @@
-package com.hotteam67.firebasescouter.tableview.popup;
+package com.hotteam67.firebaseviewer.tableview.popup;
 
 import android.content.Context;
 import android.view.Menu;
@@ -7,8 +7,8 @@ import android.widget.PopupMenu;
 
 import com.evrencoskun.tableview.ITableView;
 import com.evrencoskun.tableview.sort.SortState;
-import com.hotteam67.firebasescouter.R;
-import com.hotteam67.firebasescouter.tableview.holder.ColumnHeaderViewHolder;
+import com.hotteam67.firebaseviewer.R;
+import com.hotteam67.firebaseviewer.tableview.holder.ColumnHeaderViewHolder;
 
 /**
  * Created by evrencoskun on 26.12.2017.

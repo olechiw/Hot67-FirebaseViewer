@@ -1,4 +1,4 @@
-package com.hotteam67.firebasescouter;
+package com.hotteam67.firebaseviewer;
 
 import android.support.v7.app.ActionBar;
 import android.app.ProgressDialog;
@@ -11,11 +11,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.evrencoskun.tableview.TableView;
-import com.hotteam67.firebasescouter.firebase.FirebaseHelper;
-import com.hotteam67.firebasescouter.firebase.DataTableProcessor;
-import com.hotteam67.firebasescouter.tableview.MainTableAdapter;
-import com.hotteam67.firebasescouter.tableview.MyTableViewListener;
+import com.hotteam67.firebaseviewer.firebase.CalculatedTableHandler;
+import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
+import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
+import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
+import com.hotteam67.firebaseviewer.tableview.MyTableViewListener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 
 public class MainActivity extends AppCompatActivity {
@@ -100,18 +104,19 @@ public class MainActivity extends AppCompatActivity {
 
         showProgressDialog();
         // Null child to get all raw data
-        model.Download(new Callable() {
-            @Override
-            public Object call() throws Exception {
+        model.Download(() -> {
 
-                DataTableProcessor tmpTableHandler = new DataTableProcessor(model.getResult());
-                mTableAdapter.setAllItems(
-                        tmpTableHandler.GetColumns(),
-                        tmpTableHandler.GetRowHeaders(),
-                        tmpTableHandler.GetCells());
-                hideProgressDialog();
-                return null;
-            }
+            DataTableProcessor tmpTableHandler = new DataTableProcessor(model.getResult());
+
+            HashMap<String, Integer> calculatedColumns = new HashMap<>();
+            calculatedColumns.put("Auto High Goals", CalculatedTableHandler.Calculation.AVERAGE);
+            CalculatedTableHandler calculatedTableHandler = new CalculatedTableHandler(
+                    tmpTableHandler,calculatedColumns, new ArrayList<>(
+                            Arrays.asList(new Integer[] { 3 })));
+            mTableAdapter.setAllItems(calculatedTableHandler.GetProcessor());
+            hideProgressDialog();
+            return null;
+
         }, getAssets());
     }
 

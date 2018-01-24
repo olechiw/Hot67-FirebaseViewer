@@ -1,10 +1,10 @@
-package com.hotteam67.firebasescouter.firebase;
+package com.hotteam67.firebaseviewer.firebase;
 
 import android.util.Log;
 
-import com.hotteam67.firebasescouter.tableview.tablemodel.CellModel;
-import com.hotteam67.firebasescouter.tableview.tablemodel.ColumnHeaderModel;
-import com.hotteam67.firebasescouter.tableview.tablemodel.RowHeaderModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

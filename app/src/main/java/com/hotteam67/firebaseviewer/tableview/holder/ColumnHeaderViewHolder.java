@@ -1,4 +1,4 @@
-package com.hotteam67.firebasescouter.tableview.holder;
+package com.hotteam67.firebaseviewer.tableview.holder;
 
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
@@ -10,8 +10,8 @@ import android.widget.TextView;
 import com.evrencoskun.tableview.ITableView;
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractSorterViewHolder;
 import com.evrencoskun.tableview.sort.SortState;
-import com.hotteam67.firebasescouter.R;
-import com.hotteam67.firebasescouter.tableview.tablemodel.ColumnHeaderModel;
+import com.hotteam67.firebaseviewer.R;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 
 /**
  * Created by evrencoskun on 1.12.2017.

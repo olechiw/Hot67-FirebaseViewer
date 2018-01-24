@@ -1,11 +1,11 @@
-package com.hotteam67.firebasescouter.tableview;
+package com.hotteam67.firebaseviewer.tableview;
 
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.TextView;
 
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder;
-import com.hotteam67.firebasescouter.R;
+import com.hotteam67.firebaseviewer.R;
 
 /**
  * Created by evrencoskun on 1.12.2017.

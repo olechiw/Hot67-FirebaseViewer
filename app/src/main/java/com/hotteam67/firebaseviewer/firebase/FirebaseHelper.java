@@ -1,37 +1,20 @@
-package com.hotteam67.firebasescouter.firebase;
+package com.hotteam67.firebaseviewer.firebase;
 
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.ning.http.client.AsyncHttpClient;
-
-import org.jdeferred.DoneCallback;
-import org.jdeferred.Promise;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.restonfire.FirebaseRestDatabase;
-import org.restonfire.BaseFirebaseRestDatabaseFactory;
-import org.restonfire.FirebaseRestReference;
-
-
 
 
 /**
