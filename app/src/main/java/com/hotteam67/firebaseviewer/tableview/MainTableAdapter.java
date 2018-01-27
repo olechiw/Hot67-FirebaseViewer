@@ -59,6 +59,7 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
         rawDataTableProcessor = rawData;
     }
 
+
     public DataTableProcessor GetRawData()
     {
         return rawDataTableProcessor;

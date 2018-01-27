@@ -15,7 +15,7 @@ import java.util.List;
  * Created by Jakob on 1/19/2018.
  */
 
-public class CalculatedTableHandler {
+public class CalculatedTableProcessor {
 
     private DataTableProcessor rawDataTable;
     private List<String> columnsNames;
@@ -31,14 +31,14 @@ public class CalculatedTableHandler {
         public static final int MINIMUM = 2;
     }
 
-    public CalculatedTableHandler(DataTableProcessor rawData)
+    public CalculatedTableProcessor(DataTableProcessor rawData)
     {
         rawDataTable = rawData;
         columnsNames = rawData.GetColumnNames();
     }
 
-    public CalculatedTableHandler(DataTableProcessor rawData, HashMap<String, Integer> calculatedColumns,
-                                  List<Integer> columnIndices)
+    public CalculatedTableProcessor(DataTableProcessor rawData, HashMap<String, Integer> calculatedColumns,
+                                    List<Integer> columnIndices)
     {
         rawDataTable = rawData;
         columnsNames = rawData.GetColumnNames();
@@ -151,10 +151,20 @@ public class CalculatedTableHandler {
             {
                 try
                 {
+                    /*
                     return Stream.of(columnValues)
                             // Convert to a number
-                            .mapToDouble(CalculatedTableHandler::ConvertToDouble)
+                            .mapToDouble(CalculatedTableProcessor::ConvertToDouble)
                             .average().getAsDouble();
+                            */
+                    double d = 0;
+                    for (String s : columnValues) {
+                        Log.e("FirebaseScouter", "Averaging : " + s);
+                        d += ConvertToDouble(s);
+                    }
+
+                    d /= columnValues.size();
+                    return d;
                 }
                 catch (Exception e)
                 {
@@ -169,7 +179,7 @@ public class CalculatedTableHandler {
                 {
                     return Stream.of(columnValues)
                             // Convert to number
-                            .mapToDouble(CalculatedTableHandler::ConvertToDouble)
+                            .mapToDouble(CalculatedTableProcessor::ConvertToDouble)
                             .max().getAsDouble();
                 }
                 catch (Exception e)
@@ -184,7 +194,7 @@ public class CalculatedTableHandler {
                 {
                     return Stream.of(columnValues)
                             // Convert to number
-                            .mapToDouble(CalculatedTableHandler::ConvertToDouble)
+                            .mapToDouble(CalculatedTableProcessor::ConvertToDouble)
                             .min().getAsDouble();
                 }
                 catch (Exception e)
@@ -211,7 +221,7 @@ public class CalculatedTableHandler {
             case "false":
                 return 0;
             default:
-                return Double.valueOf("s");
+                return Double.valueOf(s);
         }
     }
 

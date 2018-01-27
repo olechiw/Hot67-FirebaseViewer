@@ -1,5 +1,8 @@
 package com.hotteam67.firebaseviewer;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -11,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.evrencoskun.tableview.TableView;
-import com.hotteam67.firebaseviewer.firebase.CalculatedTableHandler;
+import com.hotteam67.firebaseviewer.firebase.CalculatedTableProcessor;
 import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
@@ -32,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton refreshButton;
 
     private EditText teamSearchView;
+
+    DataTableProcessor rawData;
+    CalculatedTableProcessor calculatedData;
 
     public MainActivity() {
         // Required empty public constructor
@@ -57,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         settingsButton.setOnClickListener(view -> onSettingsButton());
 
         refreshButton = finalView.findViewById(R.id.refreshButton);
-        refreshButton.setOnClickListener(view -> onRefreshButton());
+        refreshButton.setOnClickListener(view -> refresh());
 
         teamSearchView = finalView.findViewById(R.id.teamNumberSearch);
         teamSearchView.addTextChangedListener(new TextWatcher() {
@@ -73,7 +79,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                try {
+                    rawData.SetTeamNumberFilter(teamSearchView.getText().toString());
+                    refreshCalculations();
+                }
+                catch (NullPointerException e)
+                {
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -86,37 +102,51 @@ public class MainActivity extends AppCompatActivity {
         // Create listener
         mTableView.setTableViewListener(new MainTableViewListener(mTableView));
 
+        refresh();
+    }
+
+    private void refresh()
+    {
+        teamSearchView.setText("");
+
+        SharedPreferences url = PreferenceManager.getDefaultSharedPreferences(this);
+        String databaseUrl = (String) url.getAll().get("pref_databaseUrl");
+        String eventName = (String) url.getAll().get("pref_eventName");
 
         final FirebaseHelper model = new FirebaseHelper(
-                    "https://hot-67-scouting.firebaseio.com/",
-                    "testevent1");
+                databaseUrl, eventName);
 
         showProgressDialog();
         // Null child to get all raw data
         model.Download(() -> {
 
-            DataTableProcessor rawDataProcessor = new DataTableProcessor(model.getResult());
+            rawData = new DataTableProcessor(model.getResult());
 
-            HashMap<String, Integer> calculatedColumns = new HashMap<>();
-            calculatedColumns.put("Auto High Goals", CalculatedTableHandler.Calculation.AVERAGE);
-            CalculatedTableHandler calculatedTableHandler = new CalculatedTableHandler(
-                    rawDataProcessor,calculatedColumns, new ArrayList<>(
-                            Arrays.asList(new Integer[] { 3 })));
-            mTableAdapter.setAllItems(calculatedTableHandler.GetProcessor(), rawDataProcessor);
+            refreshCalculations();
+
             hideProgressDialog();
             return null;
-
         }, getAssets());
     }
 
-    private void onRefreshButton()
+    private void refreshCalculations()
     {
+        HashMap<String, Integer> calculatedColumns = new HashMap<>();
 
+        calculatedColumns.put("Auto High Goals", CalculatedTableProcessor.Calculation.AVERAGE);
+
+        calculatedData = new CalculatedTableProcessor(
+                rawData,calculatedColumns, new ArrayList<>(
+                Arrays.asList(new Integer[] { 13 })));
+
+        mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
     }
+
 
     private void onSettingsButton()
     {
-
+        Intent settingsIntent = new Intent(this, PreferencesActivity.class);
+        startActivity(settingsIntent);
     }
 
     public void showProgressDialog() {

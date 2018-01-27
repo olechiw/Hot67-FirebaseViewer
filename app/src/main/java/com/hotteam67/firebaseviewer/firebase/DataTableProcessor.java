@@ -146,60 +146,12 @@ public class DataTableProcessor implements Serializable {
         }
     }
 
-    public String GetTeamNumberFilter()
-    {
-        return teamNumberFilter;
-    }
-
-    public void SetRowHeadersToColumn(String columnName)
-    {
-        try
-        {
-            if (cellList == null | cellList.size() == 0)
-                return;
-
-            int column = -1;
-            for (int i = 0; i < mColumnHeaderList.size(); ++i)
-            {
-                if (mColumnHeaderList.get(i).getData().equals(columnName))
-                {
-                    column = i;
-                    mColumnHeaderList.remove(i);
-                }
-            }
-            if (column == -1)
-            {
-                Log.e("FirebaseScouter", "Column not found: " + columnName);
-            }
-
-            List<RowHeaderModel> newRowHeaders = new ArrayList<>();
-            for (List<CellModel> row : cellList)
-            {
-                try
-                {
-                    CellModel model = row.get(column);
-                    row.remove(model);
-                    newRowHeaders.add(new RowHeaderModel(model.getData().toString()));
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
-            rowHeaderList = newRowHeaders;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
     public List<RowHeaderModel> GetRowHeaders()
     {
         if (teamNumberFilter != null && !teamNumberFilter.trim().isEmpty()) {
             List<RowHeaderModel> filteredRows = new ArrayList<>();
             for (RowHeaderModel row : rowHeaderList) {
-                if (row.getData().equals(teamNumberFilter))
+                if (row.getData().contains(teamNumberFilter))
                     filteredRows.add(row);
             }
 

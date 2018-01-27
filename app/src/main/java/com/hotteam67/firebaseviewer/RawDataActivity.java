@@ -12,6 +12,11 @@ import android.widget.TextView;
 import com.evrencoskun.tableview.TableView;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
+import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
+
+import java.util.List;
 
 public class RawDataActivity extends AppCompatActivity {
 
