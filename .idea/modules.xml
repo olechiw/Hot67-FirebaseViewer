@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://C:\Users\Jakob\Documents\FirebaseScouter-Repo\.idea\FirebaseScoutViewer.iml" filepath="C:\Users\Jakob\Documents\FirebaseScouter-Repo\.idea\FirebaseScoutViewer.iml" />
       <module fileurl="file://$PROJECT_DIR$/FirebaseScouter-Repo.iml" filepath="$PROJECT_DIR$/FirebaseScouter-Repo.iml" />
-      <module fileurl="file://C:\Users\Jakob\StudioProjects\FirebaseScoutViewer\FirebaseScouter-Repo.iml" filepath="C:\Users\Jakob\StudioProjects\FirebaseScoutViewer\FirebaseScouter-Repo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://C:\Users\Jakob\StudioProjects\FirebaseScoutViewer\app\app.iml" filepath="C:\Users\Jakob\StudioProjects\FirebaseScoutViewer\app\app.iml" />
     </modules>
   </component>
 </project>

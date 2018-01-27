@@ -15,12 +15,11 @@ import com.hotteam67.firebaseviewer.firebase.CalculatedTableHandler;
 import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
-import com.hotteam67.firebaseviewer.tableview.MyTableViewListener;
+import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.Callable;
 
 public class MainActivity extends AppCompatActivity {
     private TableView mTableView;
@@ -55,20 +54,10 @@ public class MainActivity extends AppCompatActivity {
         bar.setDisplayShowCustomEnabled(true);
 
         settingsButton = finalView.findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSettingsButton();
-            }
-        });
+        settingsButton.setOnClickListener(view -> onSettingsButton());
 
         refreshButton = finalView.findViewById(R.id.refreshButton);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onRefreshButton();
-            }
-        });
+        refreshButton.setOnClickListener(view -> onRefreshButton());
 
         teamSearchView = finalView.findViewById(R.id.teamNumberSearch);
         teamSearchView.addTextChangedListener(new TextWatcher() {
@@ -95,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         mTableView.setAdapter(mTableAdapter);
 
         // Create listener
-        mTableView.setTableViewListener(new MyTableViewListener(mTableView));
+        mTableView.setTableViewListener(new MainTableViewListener(mTableView));
 
 
         final FirebaseHelper model = new FirebaseHelper(
@@ -106,14 +95,14 @@ public class MainActivity extends AppCompatActivity {
         // Null child to get all raw data
         model.Download(() -> {
 
-            DataTableProcessor tmpTableHandler = new DataTableProcessor(model.getResult());
+            DataTableProcessor rawDataProcessor = new DataTableProcessor(model.getResult());
 
             HashMap<String, Integer> calculatedColumns = new HashMap<>();
             calculatedColumns.put("Auto High Goals", CalculatedTableHandler.Calculation.AVERAGE);
             CalculatedTableHandler calculatedTableHandler = new CalculatedTableHandler(
-                    tmpTableHandler,calculatedColumns, new ArrayList<>(
+                    rawDataProcessor,calculatedColumns, new ArrayList<>(
                             Arrays.asList(new Integer[] { 3 })));
-            mTableAdapter.setAllItems(calculatedTableHandler.GetProcessor());
+            mTableAdapter.setAllItems(calculatedTableHandler.GetProcessor(), rawDataProcessor);
             hideProgressDialog();
             return null;
 

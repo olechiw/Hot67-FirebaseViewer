@@ -2,11 +2,13 @@ package com.hotteam67.firebaseviewer.tableview.tablemodel;
 
 import com.evrencoskun.tableview.sort.ISortableModel;
 
+import java.io.Serializable;
+
 /**
  * Created by evrencoskun on 27.11.2017.
  */
 
-public class CellModel implements ISortableModel {
+public class CellModel implements ISortableModel, Serializable {
     private String mId;
     private Object mData;
 

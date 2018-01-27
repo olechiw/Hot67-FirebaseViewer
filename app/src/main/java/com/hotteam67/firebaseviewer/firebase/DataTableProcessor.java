@@ -2,10 +2,12 @@ package com.hotteam67.firebaseviewer.firebase;
 
 import android.util.Log;
 
+import com.annimon.stream.Stream;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +16,12 @@ import java.util.List;
  * Created by Jakob on 1/18/2018.
  */
 
-public class DataTableProcessor {
+public class DataTableProcessor implements Serializable {
     private List<ColumnHeaderModel> mColumnHeaderList;
-    private List<List<CellModel>> mCellList;
-    private List<RowHeaderModel> mRowHeaderList;
+    private List<List<CellModel>> cellList;
+    private List<RowHeaderModel> rowHeaderList;
 
-    private String teamNumberSearchTerm = "";
+    private String teamNumberFilter = "";
     private final String TeamNumber = "Team Number";
 
     public DataTableProcessor(HashMap<String, Object> rawData)
@@ -28,8 +30,8 @@ public class DataTableProcessor {
         Load the Raw Data into model
          */
         mColumnHeaderList = new ArrayList<>();
-        mCellList = new ArrayList<>();
-        mRowHeaderList = new ArrayList<>();
+        cellList = new ArrayList<>();
+        rowHeaderList = new ArrayList<>();
 
         int row_id = 0;
         // Load rows and headers into cellmodels
@@ -38,12 +40,12 @@ public class DataTableProcessor {
             // Load the row
             try {
                 HashMap<String, String> rowMap = (HashMap<String, String>) row.getValue();
-                mCellList.add(new ArrayList<CellModel>());
+                cellList.add(new ArrayList<CellModel>());
 
                 // TeamNumber - before everything else
                 String number = rowMap.get(TeamNumber);
-                //mCellList.get(row_id).add(new CellModel(row_id + "_0", number));
-                mRowHeaderList.add(new RowHeaderModel(number));
+                //cellList.get(row_id).add(new CellModel(row_id + "_0", number));
+                rowHeaderList.add(new RowHeaderModel(number));
                 rowMap.remove(TeamNumber);
 
 
@@ -54,7 +56,7 @@ public class DataTableProcessor {
                     String cell_id = row_id + "_" + column_id;
 
                     CellModel model = new CellModel(cell_id, cell.getValue());
-                    mCellList.get(row_id).add(model);
+                    cellList.get(row_id).add(model);
 
                     column_id++;
                 }
@@ -95,14 +97,14 @@ public class DataTableProcessor {
     public DataTableProcessor(List<ColumnHeaderModel> columnNames, List<List<CellModel>> cellValues, List<RowHeaderModel> rowNames)
     {
         mColumnHeaderList = columnNames;
-        mCellList = cellValues;
-        mRowHeaderList = rowNames;
+        cellList = cellValues;
+        rowHeaderList = rowNames;
     }
 
 
-    public void SetSearchTerm(String term)
+    public void SetTeamNumberFilter(String term)
     {
-        teamNumberSearchTerm = term;
+        teamNumberFilter = term;
     }
 
     public List<ColumnHeaderModel> GetColumns()
@@ -121,28 +123,91 @@ public class DataTableProcessor {
 
     public List<List<CellModel>> GetCells()
     {
-        List<List<CellModel>> filteredResults = new ArrayList<>();
-        filteredResults.addAll(mCellList);
-
-        for (List<CellModel> row : mCellList)
+        if (teamNumberFilter == null || teamNumberFilter.trim().isEmpty())
+            return cellList;
+        else
         {
             try {
-                //TODO: FIX
-                /*
-                if (!row.get(0).getContent().toString().contains(teamNumberSearchTerm))
-                    filteredResults.remove(row);
-                    */
+                List<RowHeaderModel> filteredRows = GetRowHeaders();
+                List<List<CellModel>> cells = new ArrayList<>();
+                if (filteredRows.size() > 0) {
+                    for (RowHeaderModel row : filteredRows)
+                    {
+                        cells.add(cellList.get(rowHeaderList.indexOf(row)));
+                    }
+                }
+                return cells;
             }
             catch (Exception e)
             {
                 e.printStackTrace();
+                return cellList;
             }
         }
-        return filteredResults;
+    }
+
+    public String GetTeamNumberFilter()
+    {
+        return teamNumberFilter;
+    }
+
+    public void SetRowHeadersToColumn(String columnName)
+    {
+        try
+        {
+            if (cellList == null | cellList.size() == 0)
+                return;
+
+            int column = -1;
+            for (int i = 0; i < mColumnHeaderList.size(); ++i)
+            {
+                if (mColumnHeaderList.get(i).getData().equals(columnName))
+                {
+                    column = i;
+                    mColumnHeaderList.remove(i);
+                }
+            }
+            if (column == -1)
+            {
+                Log.e("FirebaseScouter", "Column not found: " + columnName);
+            }
+
+            List<RowHeaderModel> newRowHeaders = new ArrayList<>();
+            for (List<CellModel> row : cellList)
+            {
+                try
+                {
+                    CellModel model = row.get(column);
+                    row.remove(model);
+                    newRowHeaders.add(new RowHeaderModel(model.getData().toString()));
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            rowHeaderList = newRowHeaders;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public List<RowHeaderModel> GetRowHeaders()
     {
-        return mRowHeaderList;
+        if (teamNumberFilter != null && !teamNumberFilter.trim().isEmpty()) {
+            List<RowHeaderModel> filteredRows = new ArrayList<>();
+            for (RowHeaderModel row : rowHeaderList) {
+                if (row.getData().equals(teamNumberFilter))
+                    filteredRows.add(row);
+            }
+
+            return filteredRows;
+        }
+        else
+        {
+            return rowHeaderList;
+        }
     }
 }

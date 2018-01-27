@@ -1,8 +1,6 @@
 package com.hotteam67.firebaseviewer.tableview;
 
 import android.content.Context;
-import android.inputmethodservice.Keyboard;
-import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,15 +10,11 @@ import com.evrencoskun.tableview.adapter.AbstractTableAdapter;
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder;
 import com.hotteam67.firebaseviewer.R;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
-import com.hotteam67.firebaseviewer.firebase.IColumnFilter;
 import com.hotteam67.firebaseviewer.tableview.holder.CellViewHolder;
 import com.hotteam67.firebaseviewer.tableview.holder.ColumnHeaderViewHolder;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by evrencoskun on 27.11.2017.
@@ -28,13 +22,12 @@ import java.util.List;
 
 public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel,
         CellModel> {
-
-    private List<IColumnFilter> filters = new ArrayList<>();
-
     public MainTableAdapter(Context p_jContext) {
         super(p_jContext);
     }
 
+    public DataTableProcessor rawDataTableProcessor;
+    private DataTableProcessor calculatedDataTableProcessor;
 
     @Override
     public RecyclerView.ViewHolder onCreateCellViewHolder(ViewGroup parent, int viewType) {
@@ -58,9 +51,24 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
         }
     }
 
-    public void setAllItems(DataTableProcessor table)
+
+    public void setAllItems(DataTableProcessor table, DataTableProcessor rawData)
     {
         setAllItems(table.GetColumns(), table.GetRowHeaders(), table.GetCells());
+        calculatedDataTableProcessor = table;
+        rawDataTableProcessor = rawData;
+    }
+
+    public DataTableProcessor GetRawData()
+    {
+        return rawDataTableProcessor;
+    }
+
+    public DataTableProcessor GetCalculatedData() { return calculatedDataTableProcessor; }
+
+    public Context GetContext()
+    {
+        return m_jContext;
     }
 
     @Override

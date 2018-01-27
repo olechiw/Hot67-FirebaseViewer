@@ -13,6 +13,8 @@ import com.evrencoskun.tableview.sort.SortState;
 import com.hotteam67.firebaseviewer.R;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 
+import java.io.Serializable;
+
 /**
  * Created by evrencoskun on 1.12.2017.
  */
