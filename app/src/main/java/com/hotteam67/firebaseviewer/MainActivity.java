@@ -1,14 +1,20 @@
 package com.hotteam67.firebaseviewer;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -33,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageButton settingsButton;
     private ImageButton refreshButton;
+
+    private int REQUEST_ENABLE_PERMISSION = 3;
 
     private EditText teamSearchView;
 
@@ -102,7 +110,46 @@ public class MainActivity extends AppCompatActivity {
         // Create listener
         mTableView.setTableViewListener(new MainTableViewListener(mTableView));
 
-        refresh();
+        if (ContextCompat.checkSelfPermission(
+                        this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED)
+        {
+            refreshLocal();
+        }
+        else
+        {
+            Log.d("FirebaseScouter", "Requesting Permissions");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_ENABLE_PERMISSION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        if (requestCode == REQUEST_ENABLE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                refreshLocal();
+            }
+        }
+    }
+
+    private void refreshLocal()
+    {
+        Log.d("FirebaseScouter", "Permissions exist");
+
+        teamSearchView.setText("");
+
+        SharedPreferences url = PreferenceManager.getDefaultSharedPreferences(this);
+        String databaseUrl = (String) url.getAll().get("pref_databaseUrl");
+        String eventName = (String) url.getAll().get("pref_eventName");
+
+        FirebaseHelper helper = new FirebaseHelper(databaseUrl, eventName);
+        helper.LoadLocal();
+        rawData = new DataTableProcessor(helper.getResult());
+        refreshCalculations();
     }
 
     private void refresh()

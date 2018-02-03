@@ -2,13 +2,19 @@ package com.hotteam67.firebaseviewer.firebase;
 
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
@@ -22,11 +28,14 @@ import org.restonfire.FirebaseRestDatabase;
  */
 
 public class FirebaseHelper {
-    FirebaseRestDatabase database;
     AssetManager assetManager;
 
     String firebaseEvent;
     String firebaseUrl;
+
+    public static final String LocalDatabase = "localDatabase.json";
+    private static final String Directory =
+            Environment.getExternalStorageDirectory().getAbsolutePath() + "/BluetoothScouter/";
 
     Callable firebaseCompleteEvent = null;
 
@@ -54,7 +63,6 @@ public class FirebaseHelper {
                 String finalUrl = firebaseUrl + "/" + firebaseEvent + ".json" + "?auth=" + authToken;
                 Log.d("FirebaseScouter", "URL: " + finalUrl);
 
-                URL url = new URL(finalUrl);
                 HttpURLConnection conn = (HttpURLConnection) new URL(finalUrl).openConnection();
                 conn.setRequestMethod("GET");
 
@@ -63,18 +71,25 @@ public class FirebaseHelper {
 
                     InputStream responseStream = conn.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(responseStream));
+
                     String line = reader.readLine();
-                    String response = "";
+                    StringBuilder response = new StringBuilder();
                     while (line != null)
                     {
-                        response += line;
+                        response.append(line);
                         line = reader.readLine();
                     }
 
-                    Log.d("FirebaseScouter", "Response: " + response);
+                    // Save locally
+                    File f = new File(Directory + LocalDatabase);
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+                    writer.write(response.toString());
+                    writer.close();
+
+                    Log.d("FirebaseScouter", "Response: " + response.toString());
 
                     conn.disconnect();
-                    return response;
+                    return response.toString();
                 }
                 conn.disconnect();
             }
@@ -112,6 +127,10 @@ public class FirebaseHelper {
 
     private void DoLoad(String json)
     {
+        DoLoad(json, false);
+    }
+    private void DoLoad(String json, boolean skipFinish)
+    {
         try
         {
             results = new HashMap<>();
@@ -122,6 +141,7 @@ public class FirebaseHelper {
             {
                 String key = (String) iterator.next();
                 JSONObject row = (JSONObject) jsonObject.get(key);
+
                 HashMap<String, String> rowMap = new HashMap<>();
 
                 Iterator<?> rowIterator = row.keys();
@@ -138,7 +158,30 @@ public class FirebaseHelper {
         {
             e.printStackTrace();
         }
-        DoFinish();
+        if (!skipFinish)
+            DoFinish();
+    }
+
+    public void LoadLocal()
+    {
+        try {
+            // Load from local database
+            File f = new File(Directory + LocalDatabase);
+            BufferedReader reader = new BufferedReader(new FileReader(f));
+            StringBuilder contents = new StringBuilder();
+            String s = reader.readLine();
+            while (s != null)
+            {
+                contents.append(s);
+                s = reader.readLine();
+            }
+
+            DoLoad(contents.toString(), true);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void DoFinish()
