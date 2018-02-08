@@ -25,6 +25,7 @@ import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
 import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
+import com.hotteam67.firebaseviewer.tableview.Sort;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -177,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
             hideProgressDialog();
             return null;
         });
+
+
     }
 
     private void refreshCalculations()
@@ -197,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         calculatedData = new CalculatedTableProcessor(
                 rawData,calculatedColumns, calculatedColumnsIndices);
 
-        mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
+        mTableAdapter.setAllItems(Sort.QuickAscending(calculatedData.GetProcessor()), rawData);
     }
 
 

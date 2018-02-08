@@ -28,10 +28,10 @@ import org.restonfire.FirebaseRestDatabase;
  */
 
 public class FirebaseHelper {
-    AssetManager assetManager;
 
     String firebaseEvent;
     String firebaseUrl;
+    String firebaseApiKey;
 
     public static final String LocalDatabase = "localDatabase.json";
     private static final String Directory =
@@ -41,16 +41,16 @@ public class FirebaseHelper {
 
     HashMap<String, Object> results = null;
 
-    public FirebaseHelper(String url, String event)
+    public FirebaseHelper(String url, String event, String apiKey)
     {
         firebaseUrl = url;
         firebaseEvent = event;
+        firebaseApiKey = apiKey;
     }
 
-    public void Download(Callable completeEvent, AssetManager assets)
+    public void Download(Callable completeEvent)
     {
         firebaseCompleteEvent = completeEvent;
-        this.assetManager = assets;
         new RetreiveFirebaseTask().execute();
     }
 
@@ -59,7 +59,7 @@ public class FirebaseHelper {
         {
             try
             {
-                String authToken = GetAuthToken(assetManager);
+                String authToken = firebaseApiKey;
                 String finalUrl = firebaseUrl + "/" + firebaseEvent + ".json" + "?auth=" + authToken;
                 Log.d("FirebaseScouter", "URL: " + finalUrl);
 
@@ -102,25 +102,6 @@ public class FirebaseHelper {
         protected void onPostExecute(String result)
         {
             DoLoad(result);
-        }
-    }
-
-    private String GetAuthToken(AssetManager manager)
-    {
-        try {
-            InputStream is = manager.open("credentials");
-            byte[] buffer = new byte[is.available()];
-            is.read(buffer);
-            is.close();
-            String auth = new String(buffer);
-            Log.d("FirebaseScouter", "Authentication token: " + auth);
-
-            return auth;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return "";
         }
     }
 

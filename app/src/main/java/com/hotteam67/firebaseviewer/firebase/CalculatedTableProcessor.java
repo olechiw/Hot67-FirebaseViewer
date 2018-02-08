@@ -31,12 +31,6 @@ public class CalculatedTableProcessor {
         public static final int MINIMUM = 2;
     }
 
-    public CalculatedTableProcessor(DataTableProcessor rawData)
-    {
-        rawDataTable = rawData;
-        columnsNames = rawData.GetColumnNames();
-    }
-
     public CalculatedTableProcessor(DataTableProcessor rawData, HashMap<String, Integer> calculatedColumns,
                                     List<Integer> columnIndices)
     {

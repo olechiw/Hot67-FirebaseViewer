@@ -75,17 +75,23 @@ public class MainTableViewListener implements ITableViewListener {
 
         if (!columns.get(0).getData().equals(MatchNumber)) {
             int columnIndex = -1;
-            for (ColumnHeaderModel column : columns) {
-                if (column.getData().equals(MatchNumber)) {
+            for (ColumnHeaderModel column : columns)
+            {
+                if (column.getData().equals(MatchNumber))
+                {
                     columnIndex = columns.indexOf(column);
                 }
             }
-            if (columnIndex != -1) {
+            if (columnIndex != -1)
+            {
                 columns.remove(columnIndex);
-                for (List<CellModel> row : cells) {
+                // columns.add(new ColumnHeaderModel("Match Number"));
+                for (List<CellModel> row : cells)
+                {
                     CellModel value = row.get(columnIndex);
                     rows.set(cells.indexOf(row), new RowHeaderModel(value.getData().toString()));
                     row.remove(columnIndex);
+                    // row.add(value); // Add to end for sorting
                 }
             }
 

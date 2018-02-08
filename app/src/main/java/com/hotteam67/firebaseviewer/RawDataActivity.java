@@ -10,8 +10,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.evrencoskun.tableview.TableView;
+import com.evrencoskun.tableview.sort.SortState;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
+import com.hotteam67.firebaseviewer.tableview.Sort;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
@@ -23,6 +25,7 @@ public class RawDataActivity extends AppCompatActivity {
     TextView teamNumberView;
 
     public static final String RAW_DATA_ATTRIBUTE = "raw_data_attribute";
+    public static final String TEAM_NUMBER_ATTRIBUTE = "team_number_attribute";
 
     private ImageButton backButton;
     private DataTableProcessor dataTableProcessor;
@@ -45,7 +48,12 @@ public class RawDataActivity extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         if (b != null)
+        {
             dataTableProcessor = (DataTableProcessor) b.getSerializable(RAW_DATA_ATTRIBUTE);
+            String teamNumber = b.getString(TEAM_NUMBER_ATTRIBUTE);
+            teamNumberView.setText("Raw Data: " + teamNumber);
+        }
+
 
         try {
             if (dataTableProcessor != null) {
@@ -53,8 +61,14 @@ public class RawDataActivity extends AppCompatActivity {
                     Log.e("FirebaseScouter", "No input raw data found");
                     return;
                 }
-                String teamNumber = dataTableProcessor.GetRowHeaders().get(0).getData();
-                teamNumberView.setText(teamNumberView.getText() + teamNumber);
+
+                int matchNumberIndex = dataTableProcessor.GetColumnNames().indexOf("Match Number");
+                dataTableProcessor = Sort.QuickAscending(dataTableProcessor);
+
+                TableView table = findViewById(R.id.mainTableView);
+                MainTableAdapter adapter = new MainTableAdapter(this);
+                table.setAdapter(adapter);
+                adapter.setAllItems(dataTableProcessor, null);
             }
         }
         catch (Exception e)
@@ -64,10 +78,5 @@ public class RawDataActivity extends AppCompatActivity {
 
         backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> finish());
-
-        TableView table = findViewById(R.id.mainTableView);
-        MainTableAdapter adapter = new MainTableAdapter(this);
-        table.setAdapter(adapter);
-        adapter.setAllItems(dataTableProcessor, null);
     }
 }
