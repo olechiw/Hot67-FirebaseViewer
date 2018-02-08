@@ -29,6 +29,7 @@ import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private TableView mTableView;
@@ -145,8 +146,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences url = PreferenceManager.getDefaultSharedPreferences(this);
         String databaseUrl = (String) url.getAll().get("pref_databaseUrl");
         String eventName = (String) url.getAll().get("pref_eventName");
+        String apiKey = (String) url.getAll().get("pref_apiKey");
 
-        FirebaseHelper helper = new FirebaseHelper(databaseUrl, eventName);
+        FirebaseHelper helper = new FirebaseHelper(databaseUrl, eventName, apiKey);
         helper.LoadLocal();
         rawData = new DataTableProcessor(helper.getResult());
         refreshCalculations();
@@ -159,9 +161,10 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences url = PreferenceManager.getDefaultSharedPreferences(this);
         String databaseUrl = (String) url.getAll().get("pref_databaseUrl");
         String eventName = (String) url.getAll().get("pref_eventName");
+        String apiKey = (String) url.getAll().get("pref_apiKey");
 
         final FirebaseHelper model = new FirebaseHelper(
-                databaseUrl, eventName);
+                databaseUrl, eventName, apiKey);
 
         showProgressDialog();
         // Null child to get all raw data
@@ -173,18 +176,26 @@ public class MainActivity extends AppCompatActivity {
 
             hideProgressDialog();
             return null;
-        }, getAssets());
+        });
     }
 
     private void refreshCalculations()
     {
         HashMap<String, Integer> calculatedColumns = new HashMap<>();
+        List<Integer> calculatedColumnsIndices = new ArrayList<>();
 
-        calculatedColumns.put("Auto High Goals", CalculatedTableProcessor.Calculation.AVERAGE);
+        calculatedColumns.put("Auton Switch", CalculatedTableProcessor.Calculation.AVERAGE);
+        calculatedColumnsIndices.add(3);
+        calculatedColumns.put("Auton Scale", CalculatedTableProcessor.Calculation.AVERAGE);
+        calculatedColumnsIndices.add(2);
+        calculatedColumns.put("Teleop Scale", CalculatedTableProcessor.Calculation.AVERAGE);
+        calculatedColumnsIndices.add(11);
+        calculatedColumns.put("Teleop Switch", CalculatedTableProcessor.Calculation.AVERAGE);
+        calculatedColumnsIndices.add(12);
+
 
         calculatedData = new CalculatedTableProcessor(
-                rawData,calculatedColumns, new ArrayList<>(
-                Arrays.asList(new Integer[] { 13 })));
+                rawData,calculatedColumns, calculatedColumnsIndices);
 
         mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
     }

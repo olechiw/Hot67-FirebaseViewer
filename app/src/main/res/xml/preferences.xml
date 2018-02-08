@@ -6,4 +6,7 @@
     <EditTextPreference
         android:key="pref_eventName"
         android:title="Event Name"/>
+    <EditTextPreference
+        android:key="pref_apiKey"
+        android:title="Api Key"/>
 </PreferenceScreen>
