@@ -28,7 +28,6 @@ import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
 import com.hotteam67.firebaseviewer.tableview.Sort;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         calculatedData = new CalculatedTableProcessor(
                 rawData,calculatedColumns, calculatedColumnsIndices);
 
-        mTableAdapter.setAllItems(Sort.QuickAscending(calculatedData.GetProcessor()), rawData);
+        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(calculatedData.GetProcessor()), rawData);
     }
 
 

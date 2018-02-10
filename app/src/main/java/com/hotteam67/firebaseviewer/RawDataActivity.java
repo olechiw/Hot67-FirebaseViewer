@@ -1,6 +1,5 @@
 package com.hotteam67.firebaseviewer;
 
-import android.provider.ContactsContract;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,15 +9,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.evrencoskun.tableview.TableView;
-import com.evrencoskun.tableview.sort.SortState;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
 import com.hotteam67.firebaseviewer.tableview.Sort;
-import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
-import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
-import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
-
-import java.util.List;
 
 public class RawDataActivity extends AppCompatActivity {
 
@@ -63,7 +56,7 @@ public class RawDataActivity extends AppCompatActivity {
                 }
 
                 int matchNumberIndex = dataTableProcessor.GetColumnNames().indexOf("Match Number");
-                dataTableProcessor = Sort.QuickAscending(dataTableProcessor);
+                dataTableProcessor = Sort.BubbleSortDescendingByRowHeader(dataTableProcessor);
 
                 TableView table = findViewById(R.id.mainTableView);
                 MainTableAdapter adapter = new MainTableAdapter(this);

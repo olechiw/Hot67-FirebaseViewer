@@ -39,7 +39,10 @@ public class MainTableViewListener implements ITableViewListener {
     @Override
     public void onColumnHeaderClicked(@NonNull RecyclerView.ViewHolder p_jColumnHeaderView, int
             p_nXPosition) {
-
+        Log.d("FirebaseScouter", "Sorting column: " + p_nXPosition);
+        MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
+        DataTableProcessor processor = adapter.GetCalculatedData();
+        adapter.setAllItems(Sort.BubbleSortDescendingByColumn(processor, p_nXPosition), adapter.GetRawData());
     }
 
     @Override
@@ -106,6 +109,7 @@ public class MainTableViewListener implements ITableViewListener {
 
             Intent rawDataIntent = new Intent(adapter.GetContext(), RawDataActivity.class);
             rawDataIntent.putExtra(RawDataActivity.RAW_DATA_ATTRIBUTE, finalData);
+            rawDataIntent.putExtra(RawDataActivity.TEAM_NUMBER_ATTRIBUTE, teamNumber);
             adapter.GetContext().startActivity(rawDataIntent);
         }
     }
