@@ -9,4 +9,7 @@
     <EditTextPreference
         android:key="pref_apiKey"
         android:title="Api Key"/>
+    <EditTextPreference
+        android:key="pref_matchCode"
+        android:title="TBA Match Code"/>
 </PreferenceScreen>

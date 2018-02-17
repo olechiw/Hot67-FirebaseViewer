@@ -91,9 +91,29 @@ public final class Sort {
                     }
                 }
             }
-            catch (Exception e)
+            catch (NumberFormatException e)
             {
-                e.printStackTrace();
+                for (int i = 0; i < cells.size(); ++i)
+                {
+                    List<CellModel> row = cells.get(i);
+
+                    if (i + 1 >= cells.size())
+                        continue;
+
+                    String value = cells.get(i).get(column).getData().toString();
+
+                    String nextValue = cells.get(i + 1).get(column).getData().toString();
+
+                    if (value.compareTo(nextValue) > 0)
+                    {
+                        cells.set(i, cells.get(i + 1));
+                        RowHeaderModel prevRow = rows.get(i);
+                        rows.set(i, rows.get(i + 1));
+                        cells.set(i + 1, row);
+                        rows.set(i + 1, prevRow);
+                        changed = true;
+                    }
+                }
             }
         }
 
