@@ -31,7 +31,7 @@ public class CalculatedTableProcessor {
         public static final int MINIMUM = 2;
     }
 
-    public CalculatedTableProcessor(DataTableProcessor rawData, HashMap<String, Integer> calculatedColumns,
+    public CalculatedTableProcessor(DataTableProcessor rawData, List<String> calculatedColumns,
                                     List<Integer> columnIndices)
     {
         rawDataTable = rawData;
@@ -41,7 +41,7 @@ public class CalculatedTableProcessor {
         SetupCalculatedColumns(calculatedColumns);
     }
 
-    public void SetupCalculatedColumns(HashMap<String, Integer> calculatedColumns)
+    public void SetupCalculatedColumns(List<String> calculatedColumns)
     {
         List<ColumnHeaderModel> calcColumnHeaders = new ArrayList<>();
         List<List<CellModel>> calcCells = new ArrayList<>();
@@ -52,11 +52,13 @@ public class CalculatedTableProcessor {
         /*
         Load calculated column names
          */
-        calculatedColumnHeaders = calculatedColumns;
-        for (HashMap.Entry<String, Integer> entry : calculatedColumns.entrySet())
+        for (String s : calculatedColumns)
+            calcColumnHeaders.add(new ColumnHeaderModel("Average of: " + s));
+
+        List<ColumnHeaderModel> columns = rawDataTable.GetColumns();
+        for (int i = 0; i < columns.size(); ++i)
         {
-            String calculatedName = getCalculatedColumnName(entry.getKey(), entry.getValue());
-            calcColumnHeaders.add(new ColumnHeaderModel(calculatedName));
+            Log.e("FirebaseViewer", columns.get(i).getData() + ": " + i);
         }
 
         /*
@@ -64,12 +66,11 @@ public class CalculatedTableProcessor {
          */
         List<String> teamNumbers = new ArrayList<>();
 
-        // Basically linq, query all of the distinct team numbers and store them
         Log.d("FirebaseScouter", "Finding unique teams from rowheader of size: " + rawRowHeaders.size());
-        // THIS IS ZERO FOR SOME REASON
         teamNumbers.addAll(Stream.of(rawRowHeaders)
                 .map(x -> x.getData())
                 .distinct().toList());
+
 
         /*
         Create a calculated row for each teamnumber
@@ -78,6 +79,7 @@ public class CalculatedTableProcessor {
         for (String teamNumber : teamNumbers)
         {
             Log.d("FirebaseScouter", "Doing calculations for teamnumber: " + teamNumber);
+
             // Get all matches for team number
             List<List<CellModel>> matches = Stream.of(rawDataTable.GetCells())
                     .filter(x ->
@@ -85,31 +87,27 @@ public class CalculatedTableProcessor {
                     .getData().equals(teamNumber)).toList();
 
             List<CellModel> row = new ArrayList<>();
-            int currentCalculatedColumn = 0;
-            int current_column = 0;
-            for (HashMap.Entry<String, Integer> entry : calculatedColumns.entrySet())
+            for (int column : calculatedColumnIndices)
             {
-                int rawColumnIndex = calculatedColumnIndices.get(currentCalculatedColumn);
-                currentCalculatedColumn++;
+                Log.d("FirebaseScouter", "Calculating for column: " +
+                        column
+                        + " with name: " + calculatedColumns.get(calculatedColumnIndices.indexOf(column)));
 
                 List<String> values = new ArrayList<>();
+                // Get raw data collection
                 values.addAll(Stream.of(matches).map(x ->
-                        /*
-                        Get the calculated column index, and use it to create a list of all of the
-                        values for this team. The indices correspond with the entry for calculation
-                        type
-                         */
-                        x.get(rawColumnIndex)
+                        x.get(column)
                                 .getContent().toString()
                 ).toList());
 
                 // Calculate
-                Double value = doCalculatedColumn(columnsNames.get(rawColumnIndex), values, entry.getValue());
-                value = Math.floor(value * 1000) / 1000;
-                // Add cell to row
-                row.add(new CellModel(current_row + "_" + current_column, value.toString()));
+                Double value = doCalculatedColumn(columnsNames.get(column), values, Calculation.AVERAGE);
 
-                current_column++;
+                // Round
+                value = Math.floor(value * 1000) / 1000;
+
+                // Add cell to row
+                row.add(new CellModel(current_row + "_" + column, value.toString()));
             }
             // Add row to calculated list
             calcCells.add(row);
@@ -153,7 +151,7 @@ public class CalculatedTableProcessor {
                             */
                     double d = 0;
                     for (String s : columnValues) {
-                        Log.e("FirebaseScouter", "Averaging : " + s);
+                        //Log.e("FirebaseScouter", "Averaging : " + s);
                         d += ConvertToDouble(s);
                     }
 

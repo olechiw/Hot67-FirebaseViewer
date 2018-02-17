@@ -9,6 +9,8 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,7 +23,6 @@ public class DataTableProcessor implements Serializable {
     private List<List<CellModel>> cellList;
     private List<RowHeaderModel> rowHeaderList;
 
-    private String teamNumberFilter = "";
     private final String TeamNumber = "Team Number";
 
     public DataTableProcessor(HashMap<String, Object> rawData)
@@ -107,7 +108,16 @@ public class DataTableProcessor implements Serializable {
 
     public void SetTeamNumberFilter(String term)
     {
-        teamNumberFilter = term;
+        multiFilter = new ArrayList<>(
+                Collections.singletonList(term));
+    }
+
+    private List<String> multiFilter = new ArrayList<>();
+    public void SetMultiTeamFilter(String... terms)
+    {
+        multiFilter = new ArrayList<>(
+                Arrays.asList(terms)
+        );
     }
 
     public List<ColumnHeaderModel> GetColumns()
@@ -126,7 +136,7 @@ public class DataTableProcessor implements Serializable {
 
     public List<List<CellModel>> GetCells()
     {
-        if (teamNumberFilter == null || teamNumberFilter.trim().isEmpty())
+        if (multiFilter == null || multiFilter.size() == 0)
             return cellList;
         else
         {
@@ -139,6 +149,7 @@ public class DataTableProcessor implements Serializable {
                         cells.add(cellList.get(rowHeaderList.indexOf(row)));
                     }
                 }
+                Log.d("FirebaseViewer", "Returning cells: " + cells.size());
                 return cells;
             }
             catch (Exception e)
@@ -151,18 +162,27 @@ public class DataTableProcessor implements Serializable {
 
     public List<RowHeaderModel> GetRowHeaders()
     {
-        if (teamNumberFilter != null && !teamNumberFilter.trim().isEmpty()) {
-            List<RowHeaderModel> filteredRows = new ArrayList<>();
-            for (RowHeaderModel row : rowHeaderList) {
-                if (row.getData().contains(teamNumberFilter))
-                    filteredRows.add(row);
-            }
-
-            return filteredRows;
-        }
-        else
-        {
+        if (multiFilter == null || multiFilter.size() == 0)
             return rowHeaderList;
+        if (multiFilter.get(0) == null || multiFilter.get(0).trim().isEmpty())
+            return rowHeaderList;
+        List<RowHeaderModel> filteredRows = new ArrayList<>();
+        List<RowHeaderModel> unFilteredRows = new ArrayList<>();
+        unFilteredRows.addAll(rowHeaderList);
+
+        for (String teamNumberFilter : multiFilter)
+        {
+            for (int i = 0; i < unFilteredRows.size(); ++i)
+            {
+                RowHeaderModel row = unFilteredRows.get(i);
+                if (row.getData().equals(teamNumberFilter))
+                {
+                    filteredRows.add(row);
+                    unFilteredRows.remove(i);
+                }
+            }
         }
+        Log.d("FirebaseViewer", "Returning rows: " + filteredRows.size());
+        return filteredRows;
     }
 }

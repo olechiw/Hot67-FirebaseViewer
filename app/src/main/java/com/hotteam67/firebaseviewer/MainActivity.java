@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     DataTableProcessor rawData;
     CalculatedTableProcessor calculatedData;
+    DataTableProcessor unfilteredCalculatedData;
 
     List<String> redTeams = new ArrayList<>();
     List<String> blueTeams = new ArrayList<>();
@@ -142,8 +144,9 @@ public class MainActivity extends AppCompatActivity {
                 {
                     if (matchSearchView.getText().toString().trim().isEmpty())
                     {
-                        rawData.SetTeamNumberFilter("");
-                        refreshCalculations();
+
+                        calculatedData.GetProcessor().SetTeamNumberFilter("");
+                        mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
                     }
                     int matchNumber = Integer.valueOf(matchSearchView.getText().toString());
                     if (matchNumber <= redTeams.size() && matchNumber <= blueTeams.size())
@@ -152,29 +155,45 @@ public class MainActivity extends AppCompatActivity {
                                 Arrays.asList(redTeams.get(matchNumber - 1).split(",")));
                         List<String> blue = new ArrayList<>(
                                 Arrays.asList(blueTeams.get(matchNumber - 1).split(",")));
+
                         List<String> filters = new ArrayList<>();
                         filters.addAll(red);
                         filters.addAll(blue);
 
-                        rawData.SetMultiTeamFilter(Stream.of(filters).toArray(String[]::new));
+                        List<ColumnHeaderModel> columns = new ArrayList<>();
+                        List<RowHeaderModel> rows = new ArrayList<>();
+                        List<List<CellModel>> cells = new ArrayList<>();
 
-                        refreshCalculations(true);
+                        columns.addAll(calculatedData.GetProcessor().GetColumns());
+                        rows.addAll(calculatedData.GetProcessor().GetRowHeaders());
 
-                        DataTableProcessor calcData = calculatedData.GetProcessor();
-                        List<ColumnHeaderModel> columnHeaderModels = calcData.GetColumns();
-                        columnHeaderModels.add(0, new ColumnHeaderModel("ALLIANCE"));
-                        List<List<CellModel>> rows = calcData.GetCells();
-                        for (int i = 0; i < rows.size(); ++i)
+                        for (List<CellModel> cell : calculatedData.GetProcessor().GetCells())
                         {
-                            String teamNumber = calcData.GetRowHeaders().get(i).getData();
-
-                            if (red.contains(teamNumber))
-                                rows.get(i).add(0, new CellModel(i + "_00", "RED"));
-                            else
-                                rows.get(i).add(0, new CellModel(i + "_00", "BLUE"));
+                            List<CellModel> newRow = new ArrayList<>();
+                            newRow.addAll(cell);
+                            cells.add(newRow);
                         }
 
-                        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(calcData), rawData);
+
+                        DataTableProcessor processor = new DataTableProcessor(columns, cells, rows);
+                        processor.SetMultiTeamFilter(Stream.of(filters).toArray(String[]::new));
+
+                        //refreshCalculations(true);
+                        List<ColumnHeaderModel> columnHeaderModels = processor.GetColumns();
+                        columnHeaderModels.add(0, new ColumnHeaderModel("ALLIANCE"));
+
+                        List<List<CellModel>> outputCells = processor.GetCells();
+                        for (int i = 0; i < outputCells.size(); ++i)
+                        {
+                            String teamNumber = processor.GetRowHeaders().get(i).getData();
+
+                            if (red.contains(teamNumber))
+                                outputCells.get(i).add(0, new CellModel(i + "_00", "RED"));
+                            else
+                                outputCells.get(i).add(0, new CellModel(i + "_00", "BLUE"));
+                        }
+
+                        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(processor), rawData);
                     }
                     else
                     {
