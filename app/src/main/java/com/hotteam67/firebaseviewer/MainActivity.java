@@ -338,8 +338,8 @@ public class MainActivity extends AppCompatActivity {
         try
         {
             StringBuilder s = new StringBuilder();
-            Event e = tba.getEvent(matchCode, 2017);
-                    //Integer.valueOf(new SimpleDateFormat("yyyy", Locale.US).format(new Date())));
+            Event e = tba.getEvent(matchCode, //2017);
+                    Integer.valueOf(new SimpleDateFormat("yyyy", Locale.US).format(new Date())));
 
             for (Match m : e.matches)
             {
