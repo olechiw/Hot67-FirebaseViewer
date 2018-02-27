@@ -70,6 +70,10 @@ public class MainTableViewListener implements ITableViewListener {
             newRow.addAll(row);
             cells.add(newRow);
         }
+
+        if (cells.size() == 0)
+            return;
+
         List<RowHeaderModel> rows = new ArrayList<>();
         rows.addAll(rawData.GetRowHeaders());
         List<ColumnHeaderModel> columns = new ArrayList<>();
@@ -104,6 +108,7 @@ public class MainTableViewListener implements ITableViewListener {
                     cells,
                     rows
             );
+
             Log.d("FirebaseScouter", "Set team number filter: " + teamNumber);
 
 

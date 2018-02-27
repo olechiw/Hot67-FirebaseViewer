@@ -188,12 +188,55 @@ public class MainActivity extends AppCompatActivity {
                             String teamNumber = processor.GetRowHeaders().get(i).getData();
 
                             if (red.contains(teamNumber))
+                            {
                                 outputCells.get(i).add(0, new CellModel(i + "_00", "RED"));
-                            else
+                            }
+                            else {
                                 outputCells.get(i).add(0, new CellModel(i + "_00", "BLUE"));
+                                blue.remove(teamNumber);
+                            }
+                            red.remove(teamNumber);
+                            blue.remove(teamNumber);
                         }
 
-                        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(processor), rawData);
+                        List<RowHeaderModel> rowHeaders = processor.GetRowHeaders();
+
+                        int firstRowSize = 0;
+                        if (outputCells.size() > 0)
+                        {
+                            firstRowSize = outputCells.get(0).size() - 1; // -1 for alliance
+                        }
+                        for (String team : red)
+                        {
+                            List<CellModel> row = new ArrayList<>();
+                            row.add(new CellModel("0", "RED"));
+
+                            for (int i = 0; i < firstRowSize; ++i)
+                            {
+                                row.add(new CellModel("0", "N/A"));
+                            }
+
+
+                            outputCells.add(row);
+                            rowHeaders.add(new RowHeaderModel(team));
+                        }
+                        for (String team : blue)
+                        {
+                            List<CellModel> row = new ArrayList<>();
+                            row.add(new CellModel("0", "BLUE"));
+
+                            for (int i = 0; i < firstRowSize; ++i)
+                            {
+                                row.add(new CellModel("0", "N/A"));
+                            }
+
+                            outputCells.add(row);
+                            rowHeaders.add(new RowHeaderModel(team));
+                        }
+
+                        DataTableProcessor newProcessor = new DataTableProcessor(columnHeaderModels, outputCells, rowHeaders);
+
+                        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(newProcessor), rawData);
                     }
                     else
                     {
@@ -299,21 +342,22 @@ public class MainActivity extends AppCompatActivity {
         List<String> calculatedColumns = new ArrayList<>();
         List<Integer> calculatedColumnsIndices = new ArrayList<>();
 
-
-        calculatedColumns.add("Assisted Climb");
+        calculatedColumns.add("T. Scale");
         calculatedColumnsIndices.add(0);
-        calculatedColumns.add("Auton Scale");
-        calculatedColumnsIndices.add(12);
-        calculatedColumns.add("Auton Switch");
-        calculatedColumnsIndices.add(5);
-        calculatedColumns.add("Auton Vault");
-        calculatedColumnsIndices.add(1);
-        calculatedColumns.add("Teleop Scale");
-        calculatedColumnsIndices.add(2);
-        calculatedColumns.add("Teleop Switch");
+        calculatedColumns.add("T. Switch");
         calculatedColumnsIndices.add(11);
-        calculatedColumns.add("Teleop Vault");
+        calculatedColumns.add("T. Vault");
+        calculatedColumnsIndices.add(8);
+        calculatedColumns.add("A. Scale");
+        calculatedColumnsIndices.add(12);
+        calculatedColumns.add("A. Switch");
+        calculatedColumnsIndices.add(3);
+        calculatedColumns.add("A. Vault");
         calculatedColumnsIndices.add(6);
+        calculatedColumns.add("Climbed");
+        calculatedColumnsIndices.add(5);
+        calculatedColumns.add("Assisted");
+        calculatedColumnsIndices.add(10);
 
 
         calculatedData = new CalculatedTableProcessor(

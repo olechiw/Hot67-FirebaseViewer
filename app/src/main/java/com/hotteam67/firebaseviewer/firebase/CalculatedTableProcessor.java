@@ -53,7 +53,7 @@ public class CalculatedTableProcessor {
         Load calculated column names
          */
         for (String s : calculatedColumns)
-            calcColumnHeaders.add(new ColumnHeaderModel("Average of: " + s));
+            calcColumnHeaders.add(new ColumnHeaderModel("Avg. " + s));
 
         List<ColumnHeaderModel> columns = rawDataTable.GetColumns();
         for (int i = 0; i < columns.size(); ++i)
