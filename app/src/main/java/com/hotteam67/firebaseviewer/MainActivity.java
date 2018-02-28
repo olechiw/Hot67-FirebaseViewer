@@ -142,12 +142,10 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 try
                 {
-                    if (matchSearchView.getText().toString().trim().isEmpty())
-                    {
+                    calculatedData.GetProcessor().SetTeamNumberFilter("");
+                    mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
 
-                        calculatedData.GetProcessor().SetTeamNumberFilter("");
-                        mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
-                    }
+
                     int matchNumber = Integer.valueOf(matchSearchView.getText().toString());
                     if (matchNumber <= redTeams.size() && matchNumber <= blueTeams.size())
                     {
