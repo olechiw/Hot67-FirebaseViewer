@@ -20,11 +20,7 @@ public final class FileHandler
     private static final String DIRECTORY =
             Environment.getExternalStorageDirectory().getAbsolutePath() + "/BluetoothScouter/";
 
-
-    public static final int SERVER_DATABASE = 1;
-    public static final int SCHEMA = 2;
-    public static final int SCOUTER_DATABASE = 3;
-    public static final int SERVER_MATCHES = 4;
+    public static final int VIEWER_MATCHES = 4;
 
 
     private static String file(int FILE)
@@ -32,7 +28,7 @@ public final class FileHandler
         String f = DIRECTORY;
         switch (FILE)
         {
-            case SERVER_MATCHES:
+            case VIEWER_MATCHES:
                 f += MATCHES_FILE;
                 break;
             default:

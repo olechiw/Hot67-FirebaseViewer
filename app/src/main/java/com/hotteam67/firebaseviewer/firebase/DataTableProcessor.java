@@ -138,6 +138,8 @@ public class DataTableProcessor implements Serializable {
     {
         if (multiFilter == null || multiFilter.size() == 0)
             return cellList;
+        else if (multiFilter.size() == 1 && multiFilter.get(0).trim().isEmpty())
+            return cellList;
         else
         {
             try {

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.evrencoskun.tableview.ITableView;
 import com.evrencoskun.tableview.listener.ITableViewListener;
+import com.hotteam67.firebaseviewer.FileHandler;
 import com.hotteam67.firebaseviewer.RawDataActivity;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
@@ -14,6 +15,7 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -80,28 +82,83 @@ public class MainTableViewListener implements ITableViewListener {
         columns.addAll(rawData.GetColumns());
 
 
+        /*
+        Remove match number, set as row header, add all of the teams unscouted matches
+         */
         if (!columns.get(0).getData().equals(MatchNumber)) {
-            int columnIndex = -1;
-            for (ColumnHeaderModel column : columns)
+            int matchNumberColumnIndex = -1;
+            /*
+            Prep full team schedule
+             */
+            List<String> matchNumbers = new ArrayList<>();
+            String matches = FileHandler.LoadContents(FileHandler.VIEWER_MATCHES);
+            if (matches != null && !matches.trim().isEmpty())
             {
-                if (column.getData().equals(MatchNumber))
-                {
-                    columnIndex = columns.indexOf(column);
-                }
+                List<String> matchesArray = Arrays.asList(matches.split("\n"));
+                if (matchesArray.size() > 0)
+                    // Load all team matches
+                    for (String match : matchesArray)
+                    {
+                        if (Arrays.asList(match.split(",")).contains(teamNumber))
+                            // +1 to make it from index to actual match number
+                            matchNumbers.add(String.valueOf(matchesArray.indexOf(match) + 1));
+                    }
             }
-            if (columnIndex != -1)
-            {
-                columns.remove(columnIndex);
-                // columns.add(new ColumnHeaderModel("Match Number"));
-                for (List<CellModel> row : cells)
-                {
-                    CellModel value = row.get(columnIndex);
-                    rows.set(cells.indexOf(row), new RowHeaderModel(value.getData().toString()));
-                    row.remove(columnIndex);
-                    // row.add(value); // Add to end for sorting
+            /*
+            Move header
+             */
+            for (ColumnHeaderModel column : columns) {
+                if (column.getData().equals(MatchNumber)) {
+                    matchNumberColumnIndex = columns.indexOf(column);
                 }
             }
 
+            /*
+            Move value in each row
+             */
+            if (matchNumberColumnIndex != -1)
+            {
+                try {
+                    columns.remove(matchNumberColumnIndex);
+                    // columns.add(new ColumnHeaderModel("Match Number"));
+                    for (List<CellModel> row : cells) {
+                        CellModel value = row.get(matchNumberColumnIndex);
+                        String matchNumber = value.getData().toString();
+                        rows.set(cells.indexOf(row), new RowHeaderModel(matchNumber));
+                        row.remove(matchNumberColumnIndex);
+                        // row.add(value); // Add to end for sorting
+                        if (matchNumbers.size() > 0) {
+                            matchNumbers.remove(matchNumber);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            // Some matches not scouted
+            if (matchNumbers.size() > 0 && cells != null && cells.size() > 0)
+            {
+                int rowSize = cells.get(0).size();
+
+                for (String matchNumber : matchNumbers)
+                {
+                    try {
+                        rows.add(new RowHeaderModel(matchNumber));
+                        List<CellModel> naRow = new ArrayList<>();
+                        for (int i = 0; i < rowSize; ++i) {
+                            naRow.add(new CellModel("00", "N/A"));
+                        }
+                        cells.add(naRow);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
             DataTableProcessor finalData = new DataTableProcessor(
                     columns,

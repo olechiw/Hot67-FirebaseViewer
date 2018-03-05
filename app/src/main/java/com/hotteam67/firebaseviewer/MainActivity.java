@@ -1,22 +1,17 @@
 package com.hotteam67.firebaseviewer;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,7 +31,6 @@ import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
 import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
-import com.hotteam67.firebaseviewer.tableview.RowHeaderViewHolder;
 import com.hotteam67.firebaseviewer.tableview.Sort;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
@@ -46,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -113,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 try {
-                    rawData.SetTeamNumberFilter(teamSearchView.getText().toString());
-                    refreshCalculations();
+                    calculatedData.GetProcessor().SetTeamNumberFilter(editable.toString());
+                    mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
                 }
                 catch (NullPointerException e)
                 {
@@ -142,11 +135,11 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 try
                 {
-                    if (matchSearchView.getText().toString().trim().isEmpty())
+                    if (s.toString().trim().isEmpty())
                     {
-
                         calculatedData.GetProcessor().SetTeamNumberFilter("");
                         mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
+                        return;
                     }
                     int matchNumber = Integer.valueOf(matchSearchView.getText().toString());
                     if (matchNumber <= redTeams.size() && matchNumber <= blueTeams.size())
@@ -240,8 +233,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        rawData.SetTeamNumberFilter("");
-                        refreshCalculations();
+                        calculatedData.GetProcessor().SetTeamNumberFilter("");
+                        mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
                     }
                 }
                 catch (Exception e)
@@ -345,19 +338,21 @@ public class MainActivity extends AppCompatActivity {
         calculatedColumns.add("T. Scale");
         calculatedColumnsIndices.add(0);
         calculatedColumns.add("T. Switch");
-        calculatedColumnsIndices.add(11);
-        calculatedColumns.add("T. Vault");
-        calculatedColumnsIndices.add(8);
-        calculatedColumns.add("A. Scale");
         calculatedColumnsIndices.add(12);
+        calculatedColumns.add("T. Vault");
+        calculatedColumnsIndices.add(9);
+        calculatedColumns.add("A. Crossed");
+        calculatedColumnsIndices.add(10);
+        calculatedColumns.add("A. Scale");
+        calculatedColumnsIndices.add(13);
         calculatedColumns.add("A. Switch");
         calculatedColumnsIndices.add(3);
         calculatedColumns.add("A. Vault");
-        calculatedColumnsIndices.add(6);
+        calculatedColumnsIndices.add(7);
         calculatedColumns.add("Climbed");
-        calculatedColumnsIndices.add(5);
+        calculatedColumnsIndices.add(6);
         calculatedColumns.add("Assisted");
-        calculatedColumnsIndices.add(10);
+        calculatedColumnsIndices.add(11);
 
 
         calculatedData = new CalculatedTableProcessor(
@@ -402,7 +397,7 @@ public class MainActivity extends AppCompatActivity {
                     s.append("\n");
                 }
             }
-            FileHandler.Write(FileHandler.SERVER_MATCHES, s.toString());
+            FileHandler.Write(FileHandler.VIEWER_MATCHES, s.toString());
 
             loadEventMatches();
         }
@@ -417,7 +412,9 @@ public class MainActivity extends AppCompatActivity {
         redTeams = new ArrayList<>();
         blueTeams = new ArrayList<>();
 
-        String content = FileHandler.LoadContents(FileHandler.SERVER_MATCHES);
+        String content = FileHandler.LoadContents(FileHandler.VIEWER_MATCHES);
+        if (content == null || content.trim().isEmpty())
+            return;
         List<String> contents = Arrays.asList(content.split("\n"));
 
         for (String match : contents)
