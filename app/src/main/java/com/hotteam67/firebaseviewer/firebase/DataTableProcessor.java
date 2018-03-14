@@ -108,17 +108,10 @@ public class DataTableProcessor implements Serializable {
 
     public void SetTeamNumberFilter(String term)
     {
-        multiFilter = new ArrayList<>(
-                Collections.singletonList(term));
+        teamNumberFilter = term;
     }
 
-    private List<String> multiFilter = new ArrayList<>();
-    public void SetMultiTeamFilter(String... terms)
-    {
-        multiFilter = new ArrayList<>(
-                Arrays.asList(terms)
-        );
-    }
+    private String teamNumberFilter = "";
 
     public List<ColumnHeaderModel> GetColumns()
     {
@@ -136,16 +129,17 @@ public class DataTableProcessor implements Serializable {
 
     public List<List<CellModel>> GetCells()
     {
-        if (multiFilter == null || multiFilter.size() == 0)
+        if (teamNumberFilter == null)
             return cellList;
-        else if (multiFilter.size() == 1 && multiFilter.get(0).trim().isEmpty())
+        else if (teamNumberFilter.trim().isEmpty())
             return cellList;
         else
         {
             try {
                 List<RowHeaderModel> filteredRows = GetRowHeaders();
                 List<List<CellModel>> cells = new ArrayList<>();
-                if (filteredRows.size() > 0) {
+                if (filteredRows.size() > 0)
+                {
                     for (RowHeaderModel row : filteredRows)
                     {
                         cells.add(cellList.get(rowHeaderList.indexOf(row)));
@@ -164,24 +158,19 @@ public class DataTableProcessor implements Serializable {
 
     public List<RowHeaderModel> GetRowHeaders()
     {
-        if (multiFilter == null || multiFilter.size() == 0)
+        if (teamNumberFilter == null)
             return rowHeaderList;
-        if (multiFilter.get(0) == null || multiFilter.get(0).trim().isEmpty())
+        if (teamNumberFilter.trim().isEmpty())
             return rowHeaderList;
         List<RowHeaderModel> filteredRows = new ArrayList<>();
         List<RowHeaderModel> unFilteredRows = new ArrayList<>();
         unFilteredRows.addAll(rowHeaderList);
 
-        for (String teamNumberFilter : multiFilter)
+        for (RowHeaderModel row : unFilteredRows)
         {
-            for (int i = 0; i < unFilteredRows.size(); ++i)
+            if (row.getData().equals(teamNumberFilter))
             {
-                RowHeaderModel row = unFilteredRows.get(i);
-                if (row.getData().equals(teamNumberFilter))
-                {
-                    filteredRows.add(row);
-                    unFilteredRows.remove(i);
-                }
+                filteredRows.add(row);
             }
         }
         Log.d("FirebaseViewer", "Returning rows: " + filteredRows.size());

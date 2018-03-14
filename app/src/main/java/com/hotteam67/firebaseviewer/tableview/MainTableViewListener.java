@@ -67,7 +67,8 @@ public class MainTableViewListener implements ITableViewListener {
         Copy to final data
          */
         List<List<CellModel>> cells = new ArrayList<>();
-        for (List<CellModel> row : rawData.GetCells()) {
+        List<List<CellModel>> preCopyData = rawData.GetCells();
+        for (List<CellModel> row : preCopyData) {
             ArrayList<CellModel> newRow = new ArrayList<>();
             newRow.addAll(row);
             cells.add(newRow);
@@ -107,8 +108,10 @@ public class MainTableViewListener implements ITableViewListener {
             /*
             Move header
              */
-            for (ColumnHeaderModel column : columns) {
-                if (column.getData().equals(MatchNumber)) {
+            for (ColumnHeaderModel column : columns)
+            {
+                if (column.getData().equals(MatchNumber))
+                {
                     matchNumberColumnIndex = columns.indexOf(column);
                 }
             }
@@ -139,7 +142,7 @@ public class MainTableViewListener implements ITableViewListener {
             }
 
             // Some matches not scouted
-            if (matchNumbers.size() > 0 && cells != null && cells.size() > 0)
+            if (matchNumbers.size() > 0 && cells.size() > 0)
             {
                 int rowSize = cells.get(0).size();
 

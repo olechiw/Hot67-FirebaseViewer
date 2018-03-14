@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                         DataTableProcessor processor = new DataTableProcessor(columns, cells, rows);
-                        processor.SetMultiTeamFilter(Stream.of(filters).toArray(String[]::new));
+                        processor.SetTeamNumberFilter("");
 
                         //refreshCalculations(true);
                         List<ColumnHeaderModel> columnHeaderModels = processor.GetColumns();
