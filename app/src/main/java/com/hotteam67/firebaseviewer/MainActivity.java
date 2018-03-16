@@ -156,17 +156,20 @@ public class MainActivity extends AppCompatActivity {
                         List<ColumnHeaderModel> columns = new ArrayList<>();
                         List<RowHeaderModel> rows = new ArrayList<>();
                         List<List<CellModel>> cells = new ArrayList<>();
-
                         columns.addAll(calculatedData.GetProcessor().GetColumns());
-                        rows.addAll(calculatedData.GetProcessor().GetRowHeaders());
 
-                        for (List<CellModel> cell : calculatedData.GetProcessor().GetCells())
+                        for (String team : filters)
                         {
-                            List<CellModel> newRow = new ArrayList<>();
-                            newRow.addAll(cell);
-                            cells.add(newRow);
-                        }
+                            calculatedData.GetProcessor().SetTeamNumberFilter(team);
+                            rows.addAll(calculatedData.GetProcessor().GetRowHeaders());
 
+                            for (List<CellModel> cell : calculatedData.GetProcessor().GetCells())
+                            {
+                                List<CellModel> newRow = new ArrayList<>();
+                                newRow.addAll(cell);
+                                cells.add(newRow);
+                            }
+                        }
 
                         DataTableProcessor processor = new DataTableProcessor(columns, cells, rows);
                         processor.SetTeamNumberFilter("");
