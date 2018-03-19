@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
                         DataTableProcessor newProcessor = new DataTableProcessor(columnHeaderModels, outputCells, rowHeaders);
 
-                        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(newProcessor), rawData);
+                        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByColumn(newProcessor, 0), rawData); // Sort by alliance
                     }
                     else
                     {
