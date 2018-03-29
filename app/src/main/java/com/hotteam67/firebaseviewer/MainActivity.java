@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
     DataTableProcessor rawData;
     CalculatedTableProcessor calculatedData;
-    DataTableProcessor unfilteredCalculatedData;
 
     List<String> redTeams = new ArrayList<>();
     List<String> blueTeams = new ArrayList<>();
