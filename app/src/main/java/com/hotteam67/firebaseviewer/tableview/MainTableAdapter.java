@@ -33,7 +33,7 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
     public RecyclerView.ViewHolder onCreateCellViewHolder(ViewGroup parent, int viewType) {
         View layout;
 
-        layout = LayoutInflater.from(m_jContext).inflate(R.layout.tableview_cell_layout,
+        layout = LayoutInflater.from(mContext).inflate(R.layout.tableview_cell_layout,
                 parent, false);
 
         // Create a Cell ViewHolder
@@ -69,12 +69,12 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
 
     public Context GetContext()
     {
-        return m_jContext;
+        return this.mContext;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateColumnHeaderViewHolder(ViewGroup parent, int viewType) {
-        View layout = LayoutInflater.from(m_jContext).inflate(R.layout
+        View layout = LayoutInflater.from(mContext).inflate(R.layout
                 .tableview_column_header_layout, parent, false);
 
         return new ColumnHeaderViewHolder(layout, getTableView());
@@ -95,7 +95,7 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
     public RecyclerView.ViewHolder onCreateRowHeaderViewHolder(ViewGroup parent, int viewType) {
 
         // Get Row Header xml Layout
-        View layout = LayoutInflater.from(m_jContext).inflate(R.layout
+        View layout = LayoutInflater.from(mContext).inflate(R.layout
                 .tableview_row_header_layout, parent, false);
 
         // Create a Row Header ViewHolder
@@ -115,7 +115,7 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
 
     @Override
     public View onCreateCornerView() {
-        return LayoutInflater.from(m_jContext).inflate(R.layout.tableview_corner_layout, null,
+        return LayoutInflater.from(mContext).inflate(R.layout.tableview_corner_layout, null,
                 false);
     }
 

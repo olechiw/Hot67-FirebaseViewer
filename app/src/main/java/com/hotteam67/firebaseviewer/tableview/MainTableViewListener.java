@@ -39,6 +39,11 @@ public class MainTableViewListener implements ITableViewListener {
     }
 
     @Override
+    public void onCellLongPressed(@NonNull RecyclerView.ViewHolder cellView, int column, int row) {
+
+    }
+
+    @Override
     public void onColumnHeaderClicked(@NonNull RecyclerView.ViewHolder p_jColumnHeaderView, int
             p_nXPosition) {
         Log.d("FirebaseScouter", "Sorting column: " + p_nXPosition);
