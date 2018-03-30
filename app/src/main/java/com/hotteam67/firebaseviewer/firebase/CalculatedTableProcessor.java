@@ -32,11 +32,16 @@ public class CalculatedTableProcessor {
     }
 
     public CalculatedTableProcessor(DataTableProcessor rawData, List<String> calculatedColumns,
-                                    List<Integer> columnIndices)
+                                    List<String> columnIndices)
     {
         rawDataTable = rawData;
         columnsNames = rawData.GetColumnNames();
-        calculatedColumnIndices = columnIndices;
+        calculatedColumnIndices = new ArrayList<>();
+        for (int i = 0; i < calculatedColumns.size(); ++i)
+        {
+            if (columnsNames.contains(columnIndices.get(i)))
+                calculatedColumnIndices.add(columnsNames.indexOf(columnIndices.get(i)));
+        }
 
         SetupCalculatedColumns(calculatedColumns);
     }
@@ -67,10 +72,17 @@ public class CalculatedTableProcessor {
         List<String> teamNumbers = new ArrayList<>();
 
         Log.d("FirebaseScouter", "Finding unique teams from rowheader of size: " + rawRowHeaders.size());
+        for (RowHeaderModel row : rawRowHeaders)
+        {
+            String team = row.getData();
+            if (!teamNumbers.contains(team))
+                teamNumbers.add(team);
+        }
+/*
         teamNumbers.addAll(Stream.of(rawRowHeaders)
                 .map(x -> x.getData())
                 .distinct().toList());
-
+*/
 
         /*
         Create a calculated row for each teamnumber
@@ -81,10 +93,19 @@ public class CalculatedTableProcessor {
             Log.d("FirebaseScouter", "Doing calculations for teamnumber: " + teamNumber);
 
             // Get all matches for team number
-            List<List<CellModel>> matches = Stream.of(rawDataTable.GetCells())
-                    .filter(x ->
-                            rawRowHeaders.get(rawDataTable.GetCells().indexOf(x))
-                    .getData().equals(teamNumber)).toList();
+            List<List<CellModel>> matches = new ArrayList<>();
+            for (List<CellModel> row : rawDataTable.GetCells())
+            {
+                if (rawRowHeaders.get(rawDataTable.GetCells().indexOf(row))
+                        .getData().equals(teamNumber))
+                    matches.add(row);
+            }
+                            /*
+                Stream.of(rawDataTable.GetCells())
+                        .filter(x ->
+                                rawRowHeaders.get(rawDataTable.GetCells().indexOf(x))
+                                        .getData().equals(teamNumber)).toList();
+                                        */
 
             List<CellModel> row = new ArrayList<>();
             for (int column : calculatedColumnIndices)
@@ -95,10 +116,16 @@ public class CalculatedTableProcessor {
 
                 List<String> values = new ArrayList<>();
                 // Get raw data collection
+                for (List<CellModel> s : matches)
+                {
+                    values.add(s.get(column).getContent().toString());
+                }
+                /*
                 values.addAll(Stream.of(matches).map(x ->
                         x.get(column)
                                 .getContent().toString()
                 ).toList());
+                */
 
                 // Calculate
                 Double value = doCalculatedColumn(columnsNames.get(column), values, Calculation.AVERAGE);

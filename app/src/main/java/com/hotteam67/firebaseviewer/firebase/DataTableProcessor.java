@@ -44,7 +44,7 @@ public class DataTableProcessor implements Serializable {
             // Load the row
             try {
                 HashMap<String, String> rowMap = (HashMap<String, String>) row.getValue();
-                cellList.add(new ArrayList<CellModel>());
+                cellList.add(new ArrayList<>());
 
                 // TeamNumber - before everything else
                 String number = rowMap.get(TeamNumber);

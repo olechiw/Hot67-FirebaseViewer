@@ -335,26 +335,26 @@ public class MainActivity extends AppCompatActivity {
     private void refreshCalculations(boolean dontUpdate)
     {
         List<String> calculatedColumns = new ArrayList<>();
-        List<Integer> calculatedColumnsIndices = new ArrayList<>();
+        List<String> calculatedColumnsIndices = new ArrayList<>();
 
         calculatedColumns.add("T. Scale");
-        calculatedColumnsIndices.add(0);
+        calculatedColumnsIndices.add("Teleop Scale");
         calculatedColumns.add("T. Switch");
-        calculatedColumnsIndices.add(12);
+        calculatedColumnsIndices.add("Teleop Switch");
         calculatedColumns.add("T. Vault");
-        calculatedColumnsIndices.add(9);
+        calculatedColumnsIndices.add("Teleop Vault");
         calculatedColumns.add("A. Crossed");
-        calculatedColumnsIndices.add(10);
+        calculatedColumnsIndices.add("Crossed Line");
         calculatedColumns.add("A. Scale");
-        calculatedColumnsIndices.add(13);
+        calculatedColumnsIndices.add("Auton Scale");
         calculatedColumns.add("A. Switch");
-        calculatedColumnsIndices.add(3);
+        calculatedColumnsIndices.add("Auton Switch");
         calculatedColumns.add("A. Vault");
-        calculatedColumnsIndices.add(7);
+        calculatedColumnsIndices.add("Auton Vault");
         calculatedColumns.add("Climbed");
-        calculatedColumnsIndices.add(6);
+        calculatedColumnsIndices.add("Climbed");
         calculatedColumns.add("Assisted");
-        calculatedColumnsIndices.add(11);
+        calculatedColumnsIndices.add("Assisted");
 
 
         calculatedData = new CalculatedTableProcessor(
