@@ -68,6 +68,18 @@ public class MainActivity extends AppCompatActivity {
         // Required empty public constructor
     }
 
+    public static final int RawDataRequestCode = 1;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == RawDataRequestCode)
+        {
+            if (data == null) return;
+            String result = data.getStringExtra("Match Number");
+            matchSearchView.setText(result);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,6 +101,12 @@ public class MainActivity extends AppCompatActivity {
 
         refreshButton = finalView.findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(view -> refresh());
+
+        ImageButton clearButton = findViewById(R.id.clearButton);
+        clearButton.setOnClickListener(v -> {
+            matchSearchView.setText("");
+            teamSearchView.setText("");
+        });
 
         teamSearchView = finalView.findViewById(R.id.teamNumberSearch);
         teamSearchView.addTextChangedListener(new TextWatcher() {

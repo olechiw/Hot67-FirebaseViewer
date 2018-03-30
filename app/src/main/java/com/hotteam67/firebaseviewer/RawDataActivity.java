@@ -1,5 +1,7 @@
 package com.hotteam67.firebaseviewer;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +24,8 @@ public class RawDataActivity extends AppCompatActivity {
 
     private ImageButton backButton;
     private DataTableProcessor dataTableProcessor;
+
+    TableView table;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +62,7 @@ public class RawDataActivity extends AppCompatActivity {
                 int matchNumberIndex = dataTableProcessor.GetColumnNames().indexOf("Match Number");
                 dataTableProcessor = Sort.BubbleSortDescendingByRowHeader(dataTableProcessor);
 
-                TableView table = findViewById(R.id.mainTableView);
+                table = findViewById(R.id.mainTableView);
                 MainTableAdapter adapter = new MainTableAdapter(this);
                 table.setAdapter(adapter);
                 adapter.setAllItems(dataTableProcessor, null);
@@ -71,5 +75,23 @@ public class RawDataActivity extends AppCompatActivity {
 
         backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> finish());
+    }
+
+
+    @Override
+    public void finish() {
+        String matchNumberSelected = "";
+        try
+        {
+            matchNumberSelected = ((MainTableAdapter) table.getAdapter()).GetCalculatedData().GetRowHeaders()
+                    .get(table.getSelectedRow()).getData();
+        }
+        catch (Exception e)
+        {
+        }
+        Intent result = new Intent();
+        result.putExtra("Match Number", matchNumberSelected);
+        setResult(Activity.RESULT_OK, result);
+        super.finish();
     }
 }

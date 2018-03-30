@@ -8,6 +8,7 @@ import android.util.Log;
 import com.evrencoskun.tableview.ITableView;
 import com.evrencoskun.tableview.listener.ITableViewListener;
 import com.hotteam67.firebaseviewer.FileHandler;
+import com.hotteam67.firebaseviewer.MainActivity;
 import com.hotteam67.firebaseviewer.RawDataActivity;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
@@ -180,7 +181,7 @@ public class MainTableViewListener implements ITableViewListener {
             Intent rawDataIntent = new Intent(adapter.GetContext(), RawDataActivity.class);
             rawDataIntent.putExtra(RawDataActivity.RAW_DATA_ATTRIBUTE, finalData);
             rawDataIntent.putExtra(RawDataActivity.TEAM_NUMBER_ATTRIBUTE, teamNumber);
-            adapter.GetContext().startActivity(rawDataIntent);
+            ((MainActivity)adapter.GetContext()).startActivityForResult(rawDataIntent, MainActivity.RawDataRequestCode);
         }
     }
 
