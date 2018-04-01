@@ -63,8 +63,10 @@ public class MainTableViewListener implements ITableViewListener {
             p_nYPosition) {
         MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
         DataTableProcessor rawData = adapter.GetRawData();
-        if (rawData == null)
+        if (rawData == null) {
+            ((RawDataActivity) adapter.GetContext()).finish();
             return;
+        }
 
         String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
         rawData.SetTeamNumberFilter(teamNumber);
@@ -181,7 +183,17 @@ public class MainTableViewListener implements ITableViewListener {
             Intent rawDataIntent = new Intent(adapter.GetContext(), RawDataActivity.class);
             rawDataIntent.putExtra(RawDataActivity.RAW_DATA_ATTRIBUTE, finalData);
             rawDataIntent.putExtra(RawDataActivity.TEAM_NUMBER_ATTRIBUTE, teamNumber);
-            ((MainActivity)adapter.GetContext()).startActivityForResult(rawDataIntent, MainActivity.RawDataRequestCode);
+
+            MainActivity activity = (MainActivity)adapter.GetContext();
+            try {
+                rawDataIntent.putExtra(RawDataActivity.TEAM_NAME_ATTRIBUTE, (String)activity.GetTeamNumbersNames().get(teamNumber));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+            activity.startActivityForResult(rawDataIntent, MainActivity.RawDataRequestCode);
         }
     }
 

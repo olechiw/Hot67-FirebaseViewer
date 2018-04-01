@@ -17,10 +17,12 @@ import java.io.FileWriter;
 public final class FileHandler
 {
     private static final String MATCHES_FILE = "viewerMatches.csv";
+    private static final String TEAMS_FILE = "teamNames.json";
     private static final String DIRECTORY =
             Environment.getExternalStorageDirectory().getAbsolutePath() + "/BluetoothScouter/";
 
     public static final int VIEWER_MATCHES = 4;
+    public static final int TEAM_NAMES = 5;
 
 
     private static String file(int FILE)
@@ -30,6 +32,9 @@ public final class FileHandler
         {
             case VIEWER_MATCHES:
                 f += MATCHES_FILE;
+                break;
+            case TEAM_NAMES:
+                f += TEAMS_FILE;
                 break;
             default:
                 return null;

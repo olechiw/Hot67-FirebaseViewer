@@ -31,8 +31,15 @@ public class CalculatedTableProcessor {
         public static final int MINIMUM = 2;
     }
 
+    private List<SumColumn> sumColumns;
+    public static class SumColumn
+    {
+        public List<String> columnsNames;
+        public String columnName;
+    }
+
     public CalculatedTableProcessor(DataTableProcessor rawData, List<String> calculatedColumns,
-                                    List<String> columnIndices)
+                                    List<String> columnIndices, List<SumColumn> sumColumns)
     {
         rawDataTable = rawData;
         columnsNames = rawData.GetColumnNames();
@@ -42,6 +49,7 @@ public class CalculatedTableProcessor {
             if (columnsNames.contains(columnIndices.get(i)))
                 calculatedColumnIndices.add(columnsNames.indexOf(columnIndices.get(i)));
         }
+        this.sumColumns = sumColumns;
 
         SetupCalculatedColumns(calculatedColumns);
     }
@@ -136,12 +144,37 @@ public class CalculatedTableProcessor {
                 // Add cell to row
                 row.add(new CellModel(current_row + "_" + column, value.toString()));
             }
+            for (SumColumn sumColumn : sumColumns)
+            {
+                List<String> columnsToSum = sumColumn.columnsNames;
+                double sum = 0;
+                for (ColumnHeaderModel column : calcColumnHeaders)
+                {
+                    if (columnsToSum.contains(column.getData()))
+                    {
+                        try
+                        {
+                            sum += Double.valueOf(
+                                    row.get(calcColumnHeaders.indexOf(column)).getData().toString());
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                sum = Math.floor(sum * 1000) / 1000;
+                row.add(0, new CellModel("0_0", String.valueOf(sum)));
+            }
             // Add row to calculated list
             calcCells.add(row);
             calcRowHeaders.add(new RowHeaderModel(teamNumber));
 
             current_row++;
         }
+
+        for (SumColumn sum : sumColumns)
+            calcColumnHeaders.add(0, new ColumnHeaderModel(sum.columnName));
 
         calculatedDataTable = new DataTableProcessor(calcColumnHeaders, calcCells, calcRowHeaders);
     }

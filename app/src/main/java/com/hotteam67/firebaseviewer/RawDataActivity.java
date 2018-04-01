@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.evrencoskun.tableview.TableView;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
+import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
 import com.hotteam67.firebaseviewer.tableview.Sort;
 
 public class RawDataActivity extends AppCompatActivity {
@@ -21,6 +22,7 @@ public class RawDataActivity extends AppCompatActivity {
 
     public static final String RAW_DATA_ATTRIBUTE = "raw_data_attribute";
     public static final String TEAM_NUMBER_ATTRIBUTE = "team_number_attribute";
+    public static final String TEAM_NAME_ATTRIBUTE = "team_name_attribute";
 
     private ImageButton backButton;
     private DataTableProcessor dataTableProcessor;
@@ -48,7 +50,16 @@ public class RawDataActivity extends AppCompatActivity {
         {
             dataTableProcessor = (DataTableProcessor) b.getSerializable(RAW_DATA_ATTRIBUTE);
             String teamNumber = b.getString(TEAM_NUMBER_ATTRIBUTE);
-            teamNumberView.setText("Raw Data: " + teamNumber);
+            String title = "Raw Data: " + teamNumber;
+            try
+            {
+                title += " -" + b.getString(TEAM_NAME_ATTRIBUTE);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            teamNumberView.setText(title);
         }
 
 
@@ -59,12 +70,12 @@ public class RawDataActivity extends AppCompatActivity {
                     return;
                 }
 
-                int matchNumberIndex = dataTableProcessor.GetColumnNames().indexOf("Match Number");
                 dataTableProcessor = Sort.BubbleSortDescendingByRowHeader(dataTableProcessor);
 
                 table = findViewById(R.id.mainTableView);
                 MainTableAdapter adapter = new MainTableAdapter(this);
                 table.setAdapter(adapter);
+                table.setTableViewListener(new MainTableViewListener(table));
                 adapter.setAllItems(dataTableProcessor, null);
             }
         }

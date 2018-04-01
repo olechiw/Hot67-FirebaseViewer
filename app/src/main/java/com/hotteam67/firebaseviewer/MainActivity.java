@@ -25,6 +25,7 @@ import com.cpjd.main.Settings;
 import com.cpjd.main.TBA;
 import com.cpjd.models.Event;
 import com.cpjd.models.Match;
+import com.cpjd.models.Team;
 import com.evrencoskun.tableview.TableView;
 import com.hotteam67.firebaseviewer.firebase.CalculatedTableProcessor;
 import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
@@ -35,6 +36,8 @@ import com.hotteam67.firebaseviewer.tableview.Sort;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
+
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -314,6 +317,14 @@ public class MainActivity extends AppCompatActivity {
         FirebaseHelper helper = new FirebaseHelper(databaseUrl, eventName, apiKey);
         helper.LoadLocal();
         rawData = new DataTableProcessor(helper.getResult());
+        try {
+            teamNumbersNames = new JSONObject(FileHandler.LoadContents(FileHandler.TEAM_NAMES));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            teamNumbersNames = new JSONObject();
+        }
         refreshCalculations();
     }
 
@@ -374,13 +385,27 @@ public class MainActivity extends AppCompatActivity {
         calculatedColumns.add("Assisted");
         calculatedColumnsIndices.add("Assisted");
 
+        CalculatedTableProcessor.SumColumn column = new CalculatedTableProcessor.SumColumn();
+        column.columnName = "Total Average Cubes";
+        column.columnsNames = new ArrayList<>();
+        column.columnsNames.add("Avg. A. Scale");
+        column.columnsNames.add("Avg. T. Scale");
+        column.columnsNames.add("Avg. A. Vault");
+        column.columnsNames.add("Avg. T. Vault");
+        column.columnsNames.add("Avg. A. Switch");
+        column.columnsNames.add("Avg. T. Switch");
+
+        ArrayList<CalculatedTableProcessor.SumColumn> sumColumns = new ArrayList<>();
+        sumColumns.add(column);
 
         calculatedData = new CalculatedTableProcessor(
-                rawData,calculatedColumns, calculatedColumnsIndices);
+                rawData,calculatedColumns, calculatedColumnsIndices, sumColumns);
 
         if (!dontUpdate)
             mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(calculatedData.GetProcessor()), rawData);
     }
+
+    private JSONObject teamNumbersNames;
 
     private void downloadEventMatches()
     {
@@ -418,6 +443,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             FileHandler.Write(FileHandler.VIEWER_MATCHES, s.toString());
+
+            JSONObject teamNames = new JSONObject();
+            // Get team numbers
+            for (Team t : e.teams)
+            {
+                teamNames.put(Long.toString(t.team_number), t.nickname);
+            }
+            FileHandler.Write(FileHandler.TEAM_NAMES, teamNames.toString());
 
             loadEventMatches();
         }
@@ -473,7 +506,17 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
+        try {
+            teamNumbersNames = new JSONObject(FileHandler.LoadContents(FileHandler.TEAM_NAMES));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
+
+    public JSONObject GetTeamNumbersNames() { return teamNumbersNames; }
 
 
     private void onSettingsButton()
