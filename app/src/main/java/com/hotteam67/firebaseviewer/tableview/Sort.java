@@ -86,8 +86,6 @@ public final class Sort {
             newRows.set(newIndex, rows.get(i));
         }
 
-        //TODO: SWITCH ROW HEADERS TOO
-
 
         return new DataTableProcessor(columns, cells, newRows);
     }
