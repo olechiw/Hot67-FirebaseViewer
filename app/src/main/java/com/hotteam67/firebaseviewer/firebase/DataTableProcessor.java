@@ -37,6 +37,10 @@ public class DataTableProcessor implements Serializable {
         if (rawData == null)
             return;
 
+        cellList = new ArrayList<>();
+        mColumnHeaderList = new ArrayList<>();
+        rowHeaderList = new ArrayList<>();
+
         int row_id = 0;
         // Load rows and headers into cellmodels
         for (HashMap.Entry<String, Object> row : rawData.entrySet())

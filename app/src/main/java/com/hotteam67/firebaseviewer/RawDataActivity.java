@@ -44,6 +44,8 @@ public class RawDataActivity extends AppCompatActivity {
         bar.setDisplayShowCustomEnabled(true);
 
         teamNumberView = findViewById(R.id.teamNumberTextView);
+        backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
 
         Bundle b = getIntent().getExtras();
         if (b != null)
@@ -83,9 +85,6 @@ public class RawDataActivity extends AppCompatActivity {
         {
             e.printStackTrace();
         }
-
-        backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> finish());
     }
 
 

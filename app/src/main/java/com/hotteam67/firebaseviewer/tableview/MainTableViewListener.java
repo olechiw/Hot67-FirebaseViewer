@@ -52,6 +52,9 @@ public class MainTableViewListener implements ITableViewListener {
         MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
         DataTableProcessor processor = adapter.GetCalculatedData();
 
+        if (processor == null || processor.GetCells() == null || processor.GetCells().size() == 0)
+            return;
+
         if (lastColumnClicked != p_nXPosition) {
             adapter.setAllItems(Sort.BubbleSortByColumn(processor, p_nXPosition, false), adapter.GetRawData());
             lastColumnClicked = p_nXPosition;
@@ -95,9 +98,6 @@ public class MainTableViewListener implements ITableViewListener {
             cells.add(newRow);
         }
 
-        if (cells.size() == 0)
-            return;
-
         List<RowHeaderModel> rows = new ArrayList<>();
         rows.addAll(rawData.GetRowHeaders());
         List<ColumnHeaderModel> columns = new ArrayList<>();
@@ -107,7 +107,7 @@ public class MainTableViewListener implements ITableViewListener {
         /*
         Remove match number, set as row header, add all of the teams unscouted matches
          */
-        if (!columns.get(0).getData().equals(MatchNumber)) {
+        if (columns.size() == 0 || !columns.get(0).getData().equals(MatchNumber)) {
             int matchNumberColumnIndex = -1;
             /*
             Prep full team schedule
@@ -163,9 +163,13 @@ public class MainTableViewListener implements ITableViewListener {
             }
 
             // Some matches not scouted
-            if (matchNumbers.size() > 0 && cells.size() > 0)
+            if (matchNumbers.size() > 0)
             {
-                int rowSize = cells.get(0).size();
+                int rowSize;
+                if (cells.size() > 0)
+                    rowSize = cells.get(0).size();
+                else
+                    rowSize = 1;
 
                 for (String matchNumber : matchNumbers)
                 {

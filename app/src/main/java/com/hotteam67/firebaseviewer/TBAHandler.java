@@ -112,11 +112,22 @@ public class TBAHandler {
                 while (keys.hasNext())
                 {
                     String team = (String) keys.next();
-                    JSONObject status = (JSONObject) resultObject.get(team);
-                    JSONObject quals = (JSONObject) status.get("qual");
-                    JSONObject ranking = (JSONObject) quals.get("ranking");
-                    String value = String.valueOf(ranking.get("rank"));
-                    returnObject.put(team.replace("frc", ""), value);
+                    try {
+                        JSONObject statusObject = (JSONObject) resultObject.get(team);
+
+                        if (statusObject == null) {
+                            returnObject.put(team.replace("frc", ""), "");
+                        } else {
+                            JSONObject quals = (JSONObject) statusObject.get("qual");
+                            JSONObject ranking = (JSONObject) quals.get("ranking");
+                            String value = String.valueOf(ranking.get("rank"));
+                            returnObject.put(team.replace("frc", ""), value);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        returnObject.put(team.replace("frc", ""), "");
+                    }
                 }
             }
             catch (Exception e)

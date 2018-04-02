@@ -187,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                         DataTableProcessor processor = new DataTableProcessor(columns, cells, rows);
                         processor.SetTeamNumberFilter("");
 
-                        //refreshCalculations(true);
                         List<ColumnHeaderModel> columnHeaderModels = processor.GetColumns();
                         columnHeaderModels.add(0, new ColumnHeaderModel("ALLIANCE"));
 
@@ -383,14 +382,14 @@ public class MainActivity extends AppCompatActivity {
         calculatedColumnsIndices.add("Assisted");
 
         CalculatedTableProcessor.SumColumn column = new CalculatedTableProcessor.SumColumn();
-        column.columnName = "Avg. Cubes";
+        column.columnName = "Cubes";
         column.columnsNames = new ArrayList<>();
-        column.columnsNames.add("Avg. A. Scale");
-        column.columnsNames.add("Avg. T. Scale");
-        column.columnsNames.add("Avg. A. Vault");
-        column.columnsNames.add("Avg. T. Vault");
-        column.columnsNames.add("Avg. A. Switch");
-        column.columnsNames.add("Avg. T. Switch");
+        column.columnsNames.add("A. Scale");
+        column.columnsNames.add("T. Scale");
+        column.columnsNames.add("A. Vault");
+        column.columnsNames.add("T. Vault");
+        column.columnsNames.add("A. Switch");
+        column.columnsNames.add("T. Switch");
 
         ArrayList<CalculatedTableProcessor.SumColumn> sumColumns = new ArrayList<>();
         sumColumns.add(column);
@@ -442,14 +441,22 @@ public class MainActivity extends AppCompatActivity {
 
             // Load into json
             try {
-                TBAHandler.TeamNames(matchKey, teamNames -> FileHandler.Write(FileHandler.TEAM_NAMES, teamNames.toString()));
+                TBAHandler.TeamNames(matchKey, teamNames -> {
+                    FileHandler.Write(FileHandler.TEAM_NAMES, teamNames.toString());
+                    teamNumbersNames = teamNames;
+                });
             }
             catch (Exception e)
             {
                 e.printStackTrace();
             }
             try {
-                TBAHandler.Rankings(matchKey, rankings -> FileHandler.Write(FileHandler.TEAM_RANKS, rankings.toString()));
+                TBAHandler.Rankings(matchKey, rankings ->
+                {
+                    FileHandler.Write(FileHandler.TEAM_RANKS, rankings.toString());
+                    teamNumbersRanks = rankings;
+                }
+                );
             }
             catch (Exception e)
             {

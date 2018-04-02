@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -71,7 +72,7 @@ public class CalculatedTableProcessor {
         Load calculated column names
          */
         for (String s : calculatedColumns)
-            calcColumnHeaders.add(new ColumnHeaderModel("Avg. " + s));
+            calcColumnHeaders.add(new ColumnHeaderModel(s));
 
         /*
         Load every unique team number
@@ -107,19 +108,10 @@ public class CalculatedTableProcessor {
                         .getData().equals(teamNumber))
                     matches.add(row);
             }
-                            /*
-                Stream.of(rawDataTable.GetCells())
-                        .filter(x ->
-                                rawRowHeaders.get(rawDataTable.GetCells().indexOf(x))
-                                        .getData().equals(teamNumber)).toList();
-                                        */
 
             List<CellModel> row = new ArrayList<>();
             for (int column : calculatedColumnIndices)
             {
-                /*Log.d("FirebaseScouter", "Calculating for column: " +
-                        column
-                        + " with name: " + calculatedColumns.get(calculatedColumnIndices.indexOf(column))); */
 
                 List<String> values = new ArrayList<>();
                 // Get raw data collection
@@ -127,12 +119,6 @@ public class CalculatedTableProcessor {
                 {
                     values.add(s.get(column).getContent().toString());
                 }
-                /*
-                values.addAll(Stream.of(matches).map(x ->
-                        x.get(column)
-                                .getContent().toString()
-                ).toList());
-                */
 
                 // Calculate
                 Double value = doCalculatedColumn(columnsNames.get(column), values, Calculation.AVERAGE);
@@ -192,6 +178,30 @@ public class CalculatedTableProcessor {
         }
 
         calcColumnHeaders.add(0, new ColumnHeaderModel("R"));
+
+        // Do N/A Teams
+        Iterator<?> teamsIterator = teamRanks.keys();
+        List<String> extraTeams = new ArrayList<>();
+        while (teamsIterator.hasNext())
+        {
+            String s = (String)teamsIterator.next();
+            if (!teamNumbers.contains(s)) extraTeams.add(s);
+        }
+
+
+        int cellCount = calcColumnHeaders.size();
+        for (String s : extraTeams)
+        {
+            RowHeaderModel rowHeaderModel = new RowHeaderModel(s);
+            calcRowHeaders.add(rowHeaderModel);
+
+            List<CellModel> row = new ArrayList<>();
+            for (int i = 0; i < cellCount; ++i)
+            {
+                row.add(new CellModel("0_0", "N/A"));
+            }
+            calcCells.add(row);
+        }
 
         calculatedDataTable = new DataTableProcessor(calcColumnHeaders, calcCells, calcRowHeaders);
     }

@@ -137,6 +137,7 @@ public class FirebaseHelper {
         }
         catch (Exception e)
         {
+            results = new HashMap<>();
             e.printStackTrace();
         }
         if (!skipFinish)

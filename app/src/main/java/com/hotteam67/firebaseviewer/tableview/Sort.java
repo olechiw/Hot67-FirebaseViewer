@@ -6,7 +6,9 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -64,62 +66,60 @@ public final class Sort {
         List<List<CellModel>> cells = input.GetCells();
         List<RowHeaderModel> rows = input.GetRowHeaders();
 
-        boolean changed = true;
-        while (changed)
+        List<List<CellModel>> oldCells = new ArrayList<>();
+        oldCells.addAll(cells);
+
+        cells = com.annimon.stream.Stream.of(cells).sorted((cells1, cells2) -> Compare(cells1.get(column).getData().toString(),
+                cells2.get(column).getData().toString())).collect(com.annimon.stream.Collectors.toList());
+
+        if (!ascending)
+            Collections.reverse(cells);
+
+        List<RowHeaderModel> newRows = new ArrayList<>();
+        for (int i = 0; i < rows.size(); ++i)
         {
-            changed = false;
-            try {
-                for (int i = 0; i < cells.size(); ++i)
-                {
-                    List<CellModel> row = cells.get(i);
-
-                    double value = Double.valueOf(row.get(column).getData().toString());
-
-                    if (i + 1 >= cells.size())
-                        continue;
-
-                    double nextValue = Double.valueOf(
-                            cells.get(i + 1).get(column).getData().toString());
-
-
-                    if ((value < nextValue && !ascending) || (value > nextValue && ascending))
-                    {
-                        cells.set(i, cells.get(i + 1));
-                        RowHeaderModel prevRow = rows.get(i);
-                        rows.set(i, rows.get(i + 1));
-                        cells.set(i + 1, row);
-                        rows.set(i + 1, prevRow);
-                        changed = true;
-                    }
-                }
-            }
-            catch (NumberFormatException e)
-            {
-                for (int i = 0; i < cells.size(); ++i)
-                {
-                    List<CellModel> row = cells.get(i);
-
-                    if (i + 1 >= cells.size())
-                        continue;
-
-                    String value = cells.get(i).get(column).getData().toString();
-
-                    String nextValue = cells.get(i + 1).get(column).getData().toString();
-
-                    if ((value.compareTo(nextValue) > 0 && !ascending) ||
-                            (value.compareTo(nextValue) < 0 && ascending))
-                    {
-                        cells.set(i, cells.get(i + 1));
-                        RowHeaderModel prevRow = rows.get(i);
-                        rows.set(i, rows.get(i + 1));
-                        cells.set(i + 1, row);
-                        rows.set(i + 1, prevRow);
-                        changed = true;
-                    }
-                }
-            }
+            newRows.add(null);
+        }
+        for (int i = 0; i < rows.size(); ++i)
+        {
+            int newIndex = cells.indexOf(oldCells.get(i));
+            newRows.set(newIndex, rows.get(i));
         }
 
-        return new DataTableProcessor(columns, cells, rows);
+        //TODO: SWITCH ROW HEADERS TOO
+
+
+        return new DataTableProcessor(columns, cells, newRows);
+    }
+
+    public static int Compare(String item1, String item2)
+    {
+        if (item1.equals(item2))
+            return 0;
+
+        if (item1.equals("N/A"))
+            return -1;
+        if (item2.equals("N/A"))
+            return 1;
+
+        try
+        {
+            double value = Double.valueOf(item1);
+            double nextValue = Double.valueOf(item2);
+
+            if (value < nextValue)
+                return -1;
+            else
+                return 1;
+        }
+        catch (NumberFormatException e)
+        {
+            return item1.compareTo(item2);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 0;
+        }
     }
 }
