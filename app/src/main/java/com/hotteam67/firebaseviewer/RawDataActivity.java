@@ -89,20 +89,10 @@ public class RawDataActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public void finish() {
-        String matchNumberSelected = "";
-        try
-        {
-            matchNumberSelected = ((MainTableAdapter) table.getAdapter()).GetCalculatedData().GetRowHeaders()
-                    .get(table.getSelectedRow()).getData();
-        }
-        catch (Exception e)
-        {
-        }
+    public void doEndWithMatchNumber(String matchNumber) {
         Intent result = new Intent();
-        result.putExtra("Match Number", matchNumberSelected);
+        result.putExtra("Match Number", matchNumber);
         setResult(Activity.RESULT_OK, result);
-        super.finish();
+        finish();
     }
 }

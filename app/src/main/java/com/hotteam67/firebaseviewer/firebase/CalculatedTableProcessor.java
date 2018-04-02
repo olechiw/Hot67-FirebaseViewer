@@ -7,6 +7,8 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +24,7 @@ public class CalculatedTableProcessor {
 
     private DataTableProcessor calculatedDataTable;
     private HashMap<String, Integer> calculatedColumnHeaders;
+    private JSONObject teamRanks;
     private List<Integer> calculatedColumnIndices;
 
     public final static class Calculation
@@ -39,10 +42,12 @@ public class CalculatedTableProcessor {
     }
 
     public CalculatedTableProcessor(DataTableProcessor rawData, List<String> calculatedColumns,
-                                    List<String> columnIndices, List<SumColumn> sumColumns)
+                                    List<String> columnIndices, List<SumColumn> sumColumns,
+                                    JSONObject teamRanks)
     {
         rawDataTable = rawData;
         columnsNames = rawData.GetColumnNames();
+        this.teamRanks = teamRanks;
         calculatedColumnIndices = new ArrayList<>();
         for (int i = 0; i < calculatedColumns.size(); ++i)
         {
@@ -68,12 +73,6 @@ public class CalculatedTableProcessor {
         for (String s : calculatedColumns)
             calcColumnHeaders.add(new ColumnHeaderModel("Avg. " + s));
 
-        List<ColumnHeaderModel> columns = rawDataTable.GetColumns();
-        for (int i = 0; i < columns.size(); ++i)
-        {
-            Log.e("FirebaseViewer", columns.get(i).getData() + ": " + i);
-        }
-
         /*
         Load every unique team number
          */
@@ -98,7 +97,7 @@ public class CalculatedTableProcessor {
         int current_row = 0;
         for (String teamNumber : teamNumbers)
         {
-            Log.d("FirebaseScouter", "Doing calculations for teamnumber: " + teamNumber);
+            // Log.d("FirebaseScouter", "Doing calculations for teamnumber: " + teamNumber);
 
             // Get all matches for team number
             List<List<CellModel>> matches = new ArrayList<>();
@@ -118,9 +117,9 @@ public class CalculatedTableProcessor {
             List<CellModel> row = new ArrayList<>();
             for (int column : calculatedColumnIndices)
             {
-                Log.d("FirebaseScouter", "Calculating for column: " +
+                /*Log.d("FirebaseScouter", "Calculating for column: " +
                         column
-                        + " with name: " + calculatedColumns.get(calculatedColumnIndices.indexOf(column)));
+                        + " with name: " + calculatedColumns.get(calculatedColumnIndices.indexOf(column))); */
 
                 List<String> values = new ArrayList<>();
                 // Get raw data collection
@@ -175,6 +174,24 @@ public class CalculatedTableProcessor {
 
         for (SumColumn sum : sumColumns)
             calcColumnHeaders.add(0, new ColumnHeaderModel(sum.columnName));
+
+        for (RowHeaderModel rowHeaderModel : calcRowHeaders)
+        {
+            String team = rowHeaderModel.getData();
+            try {
+                String teamRank = (String) teamRanks.get(team);
+                calcCells.get(calcRowHeaders.indexOf(rowHeaderModel)).add(0,
+                        new CellModel("0_0", teamRank));
+            }
+            catch (Exception e)
+            {
+                //e.printStackTrace();
+                calcCells.get(calcRowHeaders.indexOf(rowHeaderModel)).add(0,
+                        new CellModel("0_0", ""));
+            }
+        }
+
+        calcColumnHeaders.add(0, new ColumnHeaderModel("R"));
 
         calculatedDataTable = new DataTableProcessor(calcColumnHeaders, calcCells, calcRowHeaders);
     }

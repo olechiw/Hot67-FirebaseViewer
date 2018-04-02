@@ -18,11 +18,13 @@ public final class FileHandler
 {
     private static final String MATCHES_FILE = "viewerMatches.csv";
     private static final String TEAMS_FILE = "teamNames.json";
+    private static final String RANKS_FILE = "teamRanks.json";
     private static final String DIRECTORY =
             Environment.getExternalStorageDirectory().getAbsolutePath() + "/BluetoothScouter/";
 
     public static final int VIEWER_MATCHES = 4;
     public static final int TEAM_NAMES = 5;
+    public static final int TEAM_RANKS = 6;
 
 
     private static String file(int FILE)
@@ -35,6 +37,9 @@ public final class FileHandler
                 break;
             case TEAM_NAMES:
                 f += TEAMS_FILE;
+                break;
+            case TEAM_RANKS:
+                f += RANKS_FILE;
                 break;
             default:
                 return null;

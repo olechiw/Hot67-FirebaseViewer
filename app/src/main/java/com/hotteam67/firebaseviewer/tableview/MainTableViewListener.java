@@ -44,13 +44,24 @@ public class MainTableViewListener implements ITableViewListener {
 
     }
 
+    private int lastColumnClicked = -1;
     @Override
     public void onColumnHeaderClicked(@NonNull RecyclerView.ViewHolder p_jColumnHeaderView, int
             p_nXPosition) {
         Log.d("FirebaseScouter", "Sorting column: " + p_nXPosition);
         MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
         DataTableProcessor processor = adapter.GetCalculatedData();
-        adapter.setAllItems(Sort.BubbleSortDescendingByColumn(processor, p_nXPosition), adapter.GetRawData());
+
+        if (lastColumnClicked != p_nXPosition) {
+            adapter.setAllItems(Sort.BubbleSortByColumn(processor, p_nXPosition, false), adapter.GetRawData());
+            lastColumnClicked = p_nXPosition;
+        }
+        else
+        {
+            adapter.setAllItems(Sort.BubbleSortByColumn(processor, p_nXPosition, true), adapter.GetRawData());
+            lastColumnClicked = -1;
+        }
+
     }
 
     @Override
@@ -64,7 +75,9 @@ public class MainTableViewListener implements ITableViewListener {
         MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
         DataTableProcessor rawData = adapter.GetRawData();
         if (rawData == null) {
-            ((RawDataActivity) adapter.GetContext()).finish();
+            ((RawDataActivity) adapter.GetContext()).doEndWithMatchNumber(
+                    adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData()
+            );
             return;
         }
 

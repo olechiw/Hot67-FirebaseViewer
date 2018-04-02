@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -20,12 +19,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.annimon.stream.Stream;
-import com.cpjd.main.Settings;
-import com.cpjd.main.TBA;
-import com.cpjd.models.Event;
-import com.cpjd.models.Match;
-import com.cpjd.models.Team;
 import com.evrencoskun.tableview.TableView;
 import com.hotteam67.firebaseviewer.firebase.CalculatedTableProcessor;
 import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
@@ -39,12 +32,10 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private TableView mTableView;
@@ -63,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     DataTableProcessor rawData;
     CalculatedTableProcessor calculatedData;
+
+    JSONObject teamNumbersRanks;
 
     List<String> redTeams = new ArrayList<>();
     List<String> blueTeams = new ArrayList<>();
@@ -252,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
                         DataTableProcessor newProcessor = new DataTableProcessor(columnHeaderModels, outputCells, rowHeaders);
 
-                        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByColumn(newProcessor, 0), rawData); // Sort by alliance
+                        mTableAdapter.setAllItems(Sort.BubbleSortByColumn(newProcessor, 0, false), rawData); // Sort by alliance
                     }
                     else
                     {
@@ -325,6 +318,15 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             teamNumbersNames = new JSONObject();
         }
+        try
+        {
+            teamNumbersRanks = new JSONObject(FileHandler.LoadContents(FileHandler.TEAM_RANKS));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            teamNumbersRanks = new JSONObject();
+        }
         refreshCalculations();
     }
 
@@ -356,12 +358,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void refreshCalculations()
-    {
-        refreshCalculations(false);
-    }
-    private void refreshCalculations(boolean dontUpdate)
     {
         List<String> calculatedColumns = new ArrayList<>();
         List<String> calculatedColumnsIndices = new ArrayList<>();
@@ -386,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
         calculatedColumnsIndices.add("Assisted");
 
         CalculatedTableProcessor.SumColumn column = new CalculatedTableProcessor.SumColumn();
-        column.columnName = "Total Average Cubes";
+        column.columnName = "Avg. Cubes";
         column.columnsNames = new ArrayList<>();
         column.columnsNames.add("Avg. A. Scale");
         column.columnsNames.add("Avg. T. Scale");
@@ -398,11 +395,12 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<CalculatedTableProcessor.SumColumn> sumColumns = new ArrayList<>();
         sumColumns.add(column);
 
-        calculatedData = new CalculatedTableProcessor(
-                rawData,calculatedColumns, calculatedColumnsIndices, sumColumns);
 
-        if (!dontUpdate)
-            mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(calculatedData.GetProcessor()), rawData);
+
+        calculatedData = new CalculatedTableProcessor(
+                rawData,calculatedColumns, calculatedColumnsIndices, sumColumns, teamNumbersRanks);
+
+        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(calculatedData.GetProcessor()), rawData);
     }
 
     private JSONObject teamNumbersNames;
@@ -411,46 +409,52 @@ public class MainActivity extends AppCompatActivity {
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String matchCode = (String) prefs.getAll().get("pref_matchCode");
-
-        TBA.setID("HOT67", "BluetoothScouter", "V1");
-        TBA tba = new TBA();
-        Settings.GET_EVENT_MATCHES = true;
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
-        StrictMode.setThreadPolicy(policy);
+        String matchKey = String.valueOf(Calendar.getInstance().get(Calendar.YEAR)) + matchCode;
 
         try
         {
             StringBuilder s = new StringBuilder();
-            Event e = tba.getEvent(matchCode, //2017);
-                    Integer.valueOf(new SimpleDateFormat("yyyy", Locale.US).format(new Date())));
 
-            for (Match m : e.matches)
-            {
-                if (m.comp_level.equals("qm"))
-                {
-                    for (String t : m.redTeams)
-                    {
-                        s.append(t.replace("frc", "")).append(",");
+            // Call api and load into csv
+            TBAHandler.Matches(matchKey, matches -> {
+                try {
+                    for (List<List<String>> m : matches) {
+                        List<String> redTeams = m.get(0);
+                        List<String> blueTeams = m.get(1);
+                        for (String t : redTeams) {
+                            s.append(t.replace("frc", "")).append(",");
+                        }
+                        for (int t = 0; t < blueTeams.size(); ++t) {
+                            s.append(blueTeams.get(t).replace("frc", ""));
+                            if (t + 1 != blueTeams.size())
+                                s.append(",");
+                        }
+                        s.append("\n");
+
+                        FileHandler.Write(FileHandler.VIEWER_MATCHES, s.toString());
                     }
-                    for (int t = 0; t < m.blueTeams.length; ++t)
-                    {
-                        s.append(m.blueTeams[t].replace("frc", ""));
-                        if (t + 1 != m.blueTeams.length)
-                            s.append(",");
-                    }
-                    s.append("\n");
                 }
-            }
-            FileHandler.Write(FileHandler.VIEWER_MATCHES, s.toString());
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            });
 
-            JSONObject teamNames = new JSONObject();
-            // Get team numbers
-            for (Team t : e.teams)
-            {
-                teamNames.put(Long.toString(t.team_number), t.nickname);
+            // Load into json
+            try {
+                TBAHandler.TeamNames(matchKey, teamNames -> FileHandler.Write(FileHandler.TEAM_NAMES, teamNames.toString()));
             }
-            FileHandler.Write(FileHandler.TEAM_NAMES, teamNames.toString());
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            try {
+                TBAHandler.Rankings(matchKey, rankings -> FileHandler.Write(FileHandler.TEAM_RANKS, rankings.toString()));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
 
             loadEventMatches();
         }
@@ -513,6 +517,16 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception e)
         {
             e.printStackTrace();
+            teamNumbersNames = new JSONObject();
+        }
+        try
+        {
+            teamNumbersRanks = new JSONObject(FileHandler.LoadContents(FileHandler.TEAM_RANKS));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            teamNumbersRanks = new JSONObject();
         }
     }
 

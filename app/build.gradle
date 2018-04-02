@@ -7,7 +7,7 @@ android {
         minSdkVersion 22
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -58,6 +58,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:0.5'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2.2'
-    implementation files('src/main/java/com/hotteam67/firebaseviewer/TBA-API.jar')
     implementation files('src/main/java/com/hotteam67/firebaseviewer/json-simple-1.1.1.jar')
+    annotationProcessor files('src/main/java/com/hotteam67/firebaseviewer/TBA-API-V3.jar')
 }

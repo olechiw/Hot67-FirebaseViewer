@@ -145,7 +145,7 @@ public class DataTableProcessor implements Serializable {
                         cells.add(cellList.get(rowHeaderList.indexOf(row)));
                     }
                 }
-                Log.d("FirebaseViewer", "Returning cells: " + cells.size());
+                // Log.d("FirebaseViewer", "Returning cells: " + cells.size());
                 return cells;
             }
             catch (Exception e)
@@ -173,7 +173,7 @@ public class DataTableProcessor implements Serializable {
                 filteredRows.add(row);
             }
         }
-        Log.d("FirebaseViewer", "Returning rows: " + filteredRows.size());
+        // Log.d("FirebaseViewer", "Returning rows: " + filteredRows.size());
         return filteredRows;
     }
 }

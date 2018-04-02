@@ -57,7 +57,8 @@ public final class Sort {
         return new DataTableProcessor(columns, cells, rows);
     }
 
-    public static DataTableProcessor BubbleSortDescendingByColumn(DataTableProcessor input, int column)
+    public static DataTableProcessor BubbleSortByColumn(DataTableProcessor input, int column,
+                                                        boolean ascending)
     {
         List<ColumnHeaderModel> columns = input.GetColumns();
         List<List<CellModel>> cells = input.GetCells();
@@ -80,7 +81,8 @@ public final class Sort {
                     double nextValue = Double.valueOf(
                             cells.get(i + 1).get(column).getData().toString());
 
-                    if (value < nextValue)
+
+                    if ((value < nextValue && !ascending) || (value > nextValue && ascending))
                     {
                         cells.set(i, cells.get(i + 1));
                         RowHeaderModel prevRow = rows.get(i);
@@ -104,7 +106,8 @@ public final class Sort {
 
                     String nextValue = cells.get(i + 1).get(column).getData().toString();
 
-                    if (value.compareTo(nextValue) > 0)
+                    if ((value.compareTo(nextValue) > 0 && !ascending) ||
+                            (value.compareTo(nextValue) < 0 && ascending))
                     {
                         cells.set(i, cells.get(i + 1));
                         RowHeaderModel prevRow = rows.get(i);
