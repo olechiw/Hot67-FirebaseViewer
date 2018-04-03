@@ -107,11 +107,15 @@ public class MainActivity extends AppCompatActivity {
                     calculationState = CalculatedTableProcessor.Calculation.MAXIMUM;
                     ((Button)v).setText("AVG");
                     Update();
+                    if (!matchSearchView.getText().toString().isEmpty())
+                        matchSearchView.setText(matchSearchView.getText());
                     break;
                 case CalculatedTableProcessor.Calculation.MAXIMUM:
                     calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
                     ((Button)v).setText("MAX");
                     Update();
+                    if (!matchSearchView.getText().toString().isEmpty())
+                        matchSearchView.setText(matchSearchView.getText());
                     break;
             }
         });
@@ -195,9 +199,9 @@ public class MainActivity extends AppCompatActivity {
                         for (String team : filters)
                         {
                             SetFilter(team);
-                            rows.addAll(calculatedDataAverages.GetProcessor().GetRowHeaders());
+                            rows.addAll(Processor().GetRowHeaders());
 
-                            for (List<CellModel> cell : calculatedDataAverages.GetProcessor().GetCells())
+                            for (List<CellModel> cell : Processor().GetCells())
                             {
                                 List<CellModel> newRow = new ArrayList<>();
                                 newRow.addAll(cell);
@@ -209,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                         processor.SetTeamNumberFilter("");
 
                         List<ColumnHeaderModel> columnHeaderModels = processor.GetColumns();
-                        columnHeaderModels.add(0, new ColumnHeaderModel("ALLIANCE"));
+                        columnHeaderModels.add(0, new ColumnHeaderModel("A"));
 
                         List<List<CellModel>> outputCells = processor.GetCells();
                         for (int i = 0; i < outputCells.size(); ++i)
