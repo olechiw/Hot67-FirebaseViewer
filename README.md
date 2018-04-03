@@ -1,3 +1,5 @@
 A simple firebase database table-viewer for the Hot team, started from this: https://github.com/evrencoskun/TableViewSampleApp and worked up
 
-credentials is a file in the assets folder that contains the database secret
+Currently capable of querying rankings and match schedules from TBA, showing Averages + Maximum, and searching by team/match.
+
+https://play.google.com/store/apps/details?id=com.hotteam67.firebaseviewer
