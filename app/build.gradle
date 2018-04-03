@@ -6,12 +6,11 @@ android {
         applicationId "com.hotteam67.firebaseviewer"
         minSdkVersion 22
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.1"
+        versionName '1.1'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-
         multiDexEnabled true
+        versionCode 2
     }
     dexOptions {
         javaMaxHeapSize "4g"
@@ -36,6 +35,15 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    productFlavors {
+    }
+    configurations {
+        all {
+            exclude module: 'httpclient'
+            exclude module: 'json'
+            exclude module: 'commons-logging'
+        }
     }
 }
 

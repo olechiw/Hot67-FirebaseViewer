@@ -15,7 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.StateSet;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -53,7 +55,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText matchSearchView;
 
     DataTableProcessor rawData;
-    CalculatedTableProcessor calculatedData;
+    CalculatedTableProcessor calculatedDataAverages;
+    CalculatedTableProcessor calculatedDataMaximums;
+
+    int calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
 
     JSONObject teamNumbersRanks;
 
@@ -95,6 +100,22 @@ public class MainActivity extends AppCompatActivity {
         settingsButton = finalView.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(view -> onSettingsButton());
 
+        finalView.findViewById(R.id.calculationButton).setOnClickListener(v -> {
+            switch (calculationState)
+            {
+                case CalculatedTableProcessor.Calculation.AVERAGE:
+                    calculationState = CalculatedTableProcessor.Calculation.MAXIMUM;
+                    ((Button)v).setText("AVG");
+                    Update();
+                    break;
+                case CalculatedTableProcessor.Calculation.MAXIMUM:
+                    calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
+                    ((Button)v).setText("MAX");
+                    Update();
+                    break;
+            }
+        });
+
         refreshButton = finalView.findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(view -> refresh());
 
@@ -119,8 +140,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 try {
-                    calculatedData.GetProcessor().SetTeamNumberFilter(editable.toString());
-                    mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
+                    SetFilter(editable.toString());
+                    Update();
                 }
                 catch (NullPointerException e)
                 {
@@ -150,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
                 {
                     if (s.toString().trim().isEmpty())
                     {
-                        calculatedData.GetProcessor().SetTeamNumberFilter("");
-                        mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
+                        SetFilter("");
+                        Update();
                         return;
                     }
                     int matchNumber = Integer.valueOf(matchSearchView.getText().toString());
@@ -169,14 +190,14 @@ public class MainActivity extends AppCompatActivity {
                         List<ColumnHeaderModel> columns = new ArrayList<>();
                         List<RowHeaderModel> rows = new ArrayList<>();
                         List<List<CellModel>> cells = new ArrayList<>();
-                        columns.addAll(calculatedData.GetProcessor().GetColumns());
+                        columns.addAll(Processor().GetColumns());
 
                         for (String team : filters)
                         {
-                            calculatedData.GetProcessor().SetTeamNumberFilter(team);
-                            rows.addAll(calculatedData.GetProcessor().GetRowHeaders());
+                            SetFilter(team);
+                            rows.addAll(calculatedDataAverages.GetProcessor().GetRowHeaders());
 
-                            for (List<CellModel> cell : calculatedData.GetProcessor().GetCells())
+                            for (List<CellModel> cell : calculatedDataAverages.GetProcessor().GetCells())
                             {
                                 List<CellModel> newRow = new ArrayList<>();
                                 newRow.addAll(cell);
@@ -248,8 +269,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        calculatedData.GetProcessor().SetTeamNumberFilter("");
-                        mTableAdapter.setAllItems(calculatedData.GetProcessor(), rawData);
+                        calculatedDataAverages.GetProcessor().SetTeamNumberFilter("");
+                        mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
                     }
                 }
                 catch (Exception e)
@@ -395,11 +416,14 @@ public class MainActivity extends AppCompatActivity {
         sumColumns.add(column);
 
 
+        calculatedDataAverages = new CalculatedTableProcessor(
+                rawData,calculatedColumns, calculatedColumnsIndices, sumColumns, teamNumbersRanks,
+                CalculatedTableProcessor.Calculation.AVERAGE);
 
-        calculatedData = new CalculatedTableProcessor(
-                rawData,calculatedColumns, calculatedColumnsIndices, sumColumns, teamNumbersRanks);
-
-        mTableAdapter.setAllItems(Sort.BubbleSortDescendingByRowHeader(calculatedData.GetProcessor()), rawData);
+        calculatedDataMaximums = new CalculatedTableProcessor(
+                rawData, calculatedColumns, calculatedColumnsIndices, sumColumns, teamNumbersRanks,
+                CalculatedTableProcessor.Calculation.MAXIMUM);
+        Update();
     }
 
     private JSONObject teamNumbersNames;
@@ -469,6 +493,28 @@ public class MainActivity extends AppCompatActivity {
         {
             Log.e("[Matches Fetcher]", "Failed to get event: " + e.getMessage(), e);
         }
+    }
+
+    private void Update()
+    {
+        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
+            mTableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
+        else
+            mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
+    }
+
+    private DataTableProcessor Processor()
+    {
+        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
+            return calculatedDataMaximums.GetProcessor();
+        else
+            return calculatedDataAverages.GetProcessor();
+    }
+
+    private void SetFilter(String s)
+    {
+        calculatedDataMaximums.GetProcessor().SetTeamNumberFilter(s);
+        calculatedDataAverages.GetProcessor().SetTeamNumberFilter(s);
     }
 
     private void loadEventMatches()

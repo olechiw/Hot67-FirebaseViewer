@@ -54,50 +54,14 @@
         android:layout_toRightOf="@id/matchNumberSearch"
         android:id="@+id/clearButton"
         android:background="#000000"/>
-        <!--
-    <android.support.v7.widget.LinearLayoutCompat
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical">
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Match Number:"
-            android:background="#000000"
-            android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat"/>
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#000000"
-            android:inputType="number"
-            android:textColor="#ffffff"
-            android:id="@+id/matchNumberSearch"/>
-    </android.support.v7.widget.LinearLayoutCompat>
-    <android.support.v7.widget.LinearLayoutCompat
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:id="@+id/calculationButton"
+        android:text="MAX"
         android:layout_centerVertical="true"
-        android:padding="10dp"
-        android:layout_toRightOf="@id/settingsButton">
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Team Number:"
-            android:background="#000000"
-            android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat"/>
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#000000"
-            android:inputType="number"
-            android:textColor="#ffffff"
-            android:id="@+id/teamNumberSearch"/>
-    </android.support.v7.widget.LinearLayoutCompat>
-    -->
+        android:layout_toRightOf="@id/clearButton"
+        android:background="#000000"/>
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

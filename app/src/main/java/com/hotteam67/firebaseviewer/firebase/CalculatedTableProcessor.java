@@ -35,6 +35,8 @@ public class CalculatedTableProcessor {
         public static final int MINIMUM = 2;
     }
 
+    private int calculationType;
+
     private List<SumColumn> sumColumns;
     public static class SumColumn
     {
@@ -44,7 +46,7 @@ public class CalculatedTableProcessor {
 
     public CalculatedTableProcessor(DataTableProcessor rawData, List<String> calculatedColumns,
                                     List<String> columnIndices, List<SumColumn> sumColumns,
-                                    JSONObject teamRanks)
+                                    JSONObject teamRanks, int calculationType)
     {
         rawDataTable = rawData;
         columnsNames = rawData.GetColumnNames();
@@ -56,6 +58,7 @@ public class CalculatedTableProcessor {
                 calculatedColumnIndices.add(columnsNames.indexOf(columnIndices.get(i)));
         }
         this.sumColumns = sumColumns;
+        this.calculationType = calculationType;
 
         SetupCalculatedColumns(calculatedColumns);
     }
@@ -121,7 +124,7 @@ public class CalculatedTableProcessor {
                 }
 
                 // Calculate
-                Double value = doCalculatedColumn(columnsNames.get(column), values, Calculation.AVERAGE);
+                Double value = doCalculatedColumn(columnsNames.get(column), values, calculationType);
 
                 // Round
                 value = Math.floor(value * 1000) / 1000;
@@ -230,12 +233,6 @@ public class CalculatedTableProcessor {
             {
                 try
                 {
-                    /*
-                    return Stream.of(columnValues)
-                            // Convert to a number
-                            .mapToDouble(CalculatedTableProcessor::ConvertToDouble)
-                            .average().getAsDouble();
-                            */
                     double d = 0;
                     for (String s : columnValues) {
                         //Log.e("FirebaseScouter", "Averaging : " + s);
@@ -256,10 +253,12 @@ public class CalculatedTableProcessor {
             case Calculation.MAXIMUM:
                 try
                 {
-                    return Stream.of(columnValues)
-                            // Convert to number
-                            .mapToDouble(CalculatedTableProcessor::ConvertToDouble)
-                            .max().getAsDouble();
+                    double d = 0;
+                    for (String s : columnValues) {
+                        if (ConvertToDouble(s) > d)
+                            d = ConvertToDouble(s);
+                    }
+                    return d;
                 }
                 catch (Exception e)
                 {
