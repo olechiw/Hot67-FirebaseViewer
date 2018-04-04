@@ -48,7 +48,7 @@ public class MainTableViewListener implements ITableViewListener {
     @Override
     public void onColumnHeaderClicked(@NonNull RecyclerView.ViewHolder p_jColumnHeaderView, int
             p_nXPosition) {
-        Log.d("FirebaseScouter", "Sorting column: " + p_nXPosition);
+        Log.d("HotTeam67", "Sorting column: " + p_nXPosition);
         MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
         DataTableProcessor processor = adapter.GetCalculatedData();
 
@@ -194,7 +194,7 @@ public class MainTableViewListener implements ITableViewListener {
                     rows
             );
 
-            Log.d("FirebaseScouter", "Set team number filter: " + teamNumber);
+            Log.d("HotTeam67", "Set team number filter: " + teamNumber);
 
 
             Intent rawDataIntent = new Intent(adapter.GetContext(), RawDataActivity.class);

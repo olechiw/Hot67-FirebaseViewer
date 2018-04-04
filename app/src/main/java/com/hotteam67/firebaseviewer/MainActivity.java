@@ -40,6 +40,15 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String AVG = "AVG";
+    public static final String MAX = "MAX";
+    public static final String EMPTY = "";
+    public static final String RED = "RED";
+    public static final String N_A = "N/A";
+    public static final String BLUE = "BLUE";
+    public static final String ALLIANCE = "A";
+
+
     private TableView mTableView;
     private MainTableAdapter mTableAdapter;
 
@@ -100,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         preferredOrder.add("Teleop Scale");
         preferredOrder.add("Teleop Switch");
         preferredOrder.add("Teleop Vault");
+        preferredOrder.add("Crossed Line");
         preferredOrder.add("Auton Scale");
         preferredOrder.add("Auton Switch");
         preferredOrder.add("Auton Vault");
@@ -116,14 +126,14 @@ public class MainActivity extends AppCompatActivity {
             {
                 case CalculatedTableProcessor.Calculation.AVERAGE:
                     calculationState = CalculatedTableProcessor.Calculation.MAXIMUM;
-                    ((Button)v).setText("AVG");
+                    ((Button)v).setText(AVG);
                     Update();
                     if (!matchSearchView.getText().toString().isEmpty())
                         matchSearchView.setText(matchSearchView.getText());
                     break;
                 case CalculatedTableProcessor.Calculation.MAXIMUM:
                     calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
-                    ((Button)v).setText("MAX");
+                    ((Button)v).setText(MAX);
                     Update();
                     if (!matchSearchView.getText().toString().isEmpty())
                         matchSearchView.setText(matchSearchView.getText());
@@ -136,8 +146,8 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton clearButton = findViewById(R.id.clearButton);
         clearButton.setOnClickListener(v -> {
-            matchSearchView.setText("");
-            teamSearchView.setText("");
+            matchSearchView.setText(EMPTY);
+            teamSearchView.setText(EMPTY);
         });
 
         teamSearchView = finalView.findViewById(R.id.teamNumberSearch);
@@ -186,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     if (s.toString().trim().isEmpty())
                     {
-                        SetFilter("");
+                        SetFilter(EMPTY);
                         Update();
                         return;
                     }
@@ -221,10 +231,10 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         DataTableProcessor processor = new DataTableProcessor(columns, cells, rows);
-                        processor.SetTeamNumberFilter("");
+                        processor.SetTeamNumberFilter(EMPTY);
 
                         List<ColumnHeaderModel> columnHeaderModels = processor.GetColumns();
-                        columnHeaderModels.add(0, new ColumnHeaderModel("A"));
+                        columnHeaderModels.add(0, new ColumnHeaderModel(ALLIANCE));
 
                         List<List<CellModel>> outputCells = processor.GetCells();
                         for (int i = 0; i < outputCells.size(); ++i)
@@ -233,10 +243,10 @@ public class MainActivity extends AppCompatActivity {
 
                             if (red.contains(teamNumber))
                             {
-                                outputCells.get(i).add(0, new CellModel(i + "_00", "RED"));
+                                outputCells.get(i).add(0, new CellModel(i + "_00", RED));
                             }
                             else {
-                                outputCells.get(i).add(0, new CellModel(i + "_00", "BLUE"));
+                                outputCells.get(i).add(0, new CellModel(i + "_00", BLUE));
                                 blue.remove(teamNumber);
                             }
                             red.remove(teamNumber);
@@ -253,11 +263,11 @@ public class MainActivity extends AppCompatActivity {
                         for (String team : red)
                         {
                             List<CellModel> row = new ArrayList<>();
-                            row.add(new CellModel("0", "RED"));
+                            row.add(new CellModel("0", RED));
 
                             for (int i = 0; i < firstRowSize; ++i)
                             {
-                                row.add(new CellModel("0", "N/A"));
+                                row.add(new CellModel("0", N_A));
                             }
 
 
@@ -267,11 +277,11 @@ public class MainActivity extends AppCompatActivity {
                         for (String team : blue)
                         {
                             List<CellModel> row = new ArrayList<>();
-                            row.add(new CellModel("0", "BLUE"));
+                            row.add(new CellModel("0", BLUE));
 
                             for (int i = 0; i < firstRowSize; ++i)
                             {
-                                row.add(new CellModel("0", "N/A"));
+                                row.add(new CellModel("0", N_A));
                             }
 
                             outputCells.add(row);
@@ -284,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        calculatedDataAverages.GetProcessor().SetTeamNumberFilter("");
+                        calculatedDataAverages.GetProcessor().SetTeamNumberFilter(EMPTY);
                         mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
                     }
                 }
@@ -313,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            Log.d("FirebaseScouter", "Requesting Permissions");
+            Log.d("HotTeam67", "Requesting Permissions");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_ENABLE_PERMISSION);
@@ -333,9 +343,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshLocal()
     {
-        Log.d("FirebaseScouter", "Permissions exist");
+        Log.d("HotTeam67", "Permissions exist");
 
-        teamSearchView.setText("");
+        teamSearchView.setText(EMPTY);
 
         SharedPreferences url = PreferenceManager.getDefaultSharedPreferences(this);
         String databaseUrl = (String) url.getAll().get("pref_databaseUrl");
@@ -367,9 +377,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void refresh()
     {
-        teamSearchView.setText("");
+        teamSearchView.setText(EMPTY);
 
+        long start = System.nanoTime();
         downloadEventMatches();
+        long end = System.nanoTime();
+        long duration = (start - end) / 1000000;
+        Log.d("HotTeam67", "downloadEventMatches() duration: " + duration + " ms");
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String databaseUrl = (String) prefs.getAll().get("pref_databaseUrl");
@@ -380,13 +394,25 @@ public class MainActivity extends AppCompatActivity {
                 databaseUrl, eventName, apiKey);
 
         showProgressDialog();
+        long downloadStart = System.nanoTime();
         // Null child to get all raw data
         model.Download(() -> {
 
+            long downloadEnd = System.nanoTime();
+            long downloadDuration = (downloadStart - downloadEnd) / 1000000;
+            Log.d("HotTeam67", "model.Download() duration: " + downloadDuration + " ms");
 
+            long rawDataStart = System.nanoTime();
             rawData = new DataTableProcessor(model.getResult(), preferredOrder);
+            long rawDataEnd = System.nanoTime();
+            long rawDataDuration = (rawDataStart - rawDataEnd) / 1000000;
+            Log.d("HotTeam67", "new DatatableProcessor() duration: " + rawDataDuration + " ms");
 
+            long refreshStart = System.nanoTime();
             refreshCalculations();
+            long refreshEnd = System.nanoTime();
+            long refreshDuration = (refreshStart - refreshEnd) / 1000000;
+            Log.d("HotTeam67", "refreshCalculations() duration: " + refreshDuration + " ms");
 
             hideProgressDialog();
             return null;
@@ -462,10 +488,10 @@ public class MainActivity extends AppCompatActivity {
                         List<String> redTeams = m.get(0);
                         List<String> blueTeams = m.get(1);
                         for (String t : redTeams) {
-                            s.append(t.replace("frc", "")).append(",");
+                            s.append(t.replace("frc", EMPTY)).append(",");
                         }
                         for (int t = 0; t < blueTeams.size(); ++t) {
-                            s.append(blueTeams.get(t).replace("frc", ""));
+                            s.append(blueTeams.get(t).replace("frc", EMPTY));
                             if (t + 1 != blueTeams.size())
                                 s.append(",");
                         }

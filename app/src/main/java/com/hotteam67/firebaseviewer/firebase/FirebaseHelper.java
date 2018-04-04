@@ -61,12 +61,12 @@ public class FirebaseHelper {
             {
                 String authToken = firebaseApiKey;
                 String finalUrl = firebaseUrl + "/" + firebaseEvent + ".json" + "?auth=" + authToken;
-                Log.d("FirebaseScouter", "URL: " + finalUrl);
+                Log.d("HotTeam67", "URL: " + finalUrl);
 
                 HttpURLConnection conn = (HttpURLConnection) new URL(finalUrl).openConnection();
                 conn.setRequestMethod("GET");
 
-                Log.d("FirebaseScouter", "Response code: " + conn.getResponseCode());
+                Log.d("HotTeam67", "Response code: " + conn.getResponseCode());
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) { // 200
 
                     InputStream responseStream = conn.getInputStream();
@@ -86,7 +86,7 @@ public class FirebaseHelper {
                     writer.write(response.toString());
                     writer.close();
 
-                    Log.d("FirebaseScouter", "Response: " + response.toString());
+                    Log.d("HotTeam67", "Response: " + response.toString());
 
                     conn.disconnect();
                     return response.toString();

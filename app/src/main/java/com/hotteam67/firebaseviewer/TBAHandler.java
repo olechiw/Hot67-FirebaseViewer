@@ -58,7 +58,7 @@ public class TBAHandler {
                 HttpURLConnection conn = (HttpURLConnection) new URL(input[0]).openConnection();
                 conn.setRequestMethod("GET");
 
-                Log.d("FirebaseScouter", "Response code: " + conn.getResponseCode());
+                Log.d("HotTeam67", "Response code: " + conn.getResponseCode());
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) { // 200
 
                     InputStream responseStream = conn.getInputStream();
@@ -72,7 +72,7 @@ public class TBAHandler {
                         line = reader.readLine();
                     }
 
-                    Log.d("FirebaseScouter", "Response: " + response.toString());
+                    Log.d("HotTeam67", "Response: " + response.toString());
 
                     conn.disconnect();
                     return response.toString();
@@ -99,7 +99,7 @@ public class TBAHandler {
         String url = BASE_URL;
 
         url += EVENT + eventCode + TEAMS + STATUSES + AUTH_TOKEN;
-        Log.d("FirebaseViewer", "Pulling data from url: " + url);
+        Log.d("HotTeam67", "Pulling data from url: " + url);
 
         RetreiveUrl retreiveUrl = new RetreiveUrl(result -> {
             JSONObject resultObject;
@@ -145,7 +145,7 @@ public class TBAHandler {
         String url = BASE_URL;
 
         url += EVENT + eventCode + MATCHES + AUTH_TOKEN;
-        Log.d("FirebaseViewer", "Pulling data from url: " + url);
+        Log.d("HotTeam67", "Pulling data from url: " + url);
 
         RetreiveUrl retreiveUrl = new RetreiveUrl(result -> {
             JSONArray resultArray;
@@ -200,7 +200,7 @@ public class TBAHandler {
         String url = BASE_URL;
 
         url += EVENT + eventCode + TEAMS + AUTH_TOKEN;
-        Log.d("FirebaseViewer", "Pulling data from url: " + url);
+        Log.d("HotTeam67", "Pulling data from url: " + url);
 
         RetreiveUrl retreiveUrl = new RetreiveUrl(result -> {
             JSONArray resultArray;

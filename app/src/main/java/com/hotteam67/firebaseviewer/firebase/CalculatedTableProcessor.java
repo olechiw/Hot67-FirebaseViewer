@@ -82,18 +82,13 @@ public class CalculatedTableProcessor {
          */
         List<String> teamNumbers = new ArrayList<>();
 
-        Log.d("FirebaseScouter", "Finding unique teams from rowheader of size: " + rawRowHeaders.size());
+        Log.d("HotTeam67", "Finding unique teams from rowheader of size: " + rawRowHeaders.size());
         for (RowHeaderModel row : rawRowHeaders)
         {
             String team = row.getData();
             if (!teamNumbers.contains(team))
                 teamNumbers.add(team);
         }
-/*
-        teamNumbers.addAll(Stream.of(rawRowHeaders)
-                .map(x -> x.getData())
-                .distinct().toList());
-*/
 
         /*
         Create a calculated row for each teamnumber
@@ -101,8 +96,6 @@ public class CalculatedTableProcessor {
         int current_row = 0;
         for (String teamNumber : teamNumbers)
         {
-            // Log.d("FirebaseScouter", "Doing calculations for teamnumber: " + teamNumber);
-
             // Get all matches for team number
             List<List<CellModel>> matches = new ArrayList<>();
             for (List<CellModel> row : rawDataTable.GetCells())
@@ -212,16 +205,6 @@ public class CalculatedTableProcessor {
     public DataTableProcessor GetProcessor()
     {
         return calculatedDataTable;
-    }
-
-    public HashMap<String, Integer> GetColumns()
-    {
-        return calculatedColumnHeaders;
-    }
-
-    public List<Integer> GetColumnIndices()
-    {
-        return calculatedColumnIndices;
     }
 
     public static double doCalculatedColumn(String columnName, List<String> columnValues,

@@ -50,7 +50,7 @@ public class PreferencesActivity extends AppCompatActivity
 
             for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); ++i)
             {
-                Log.d("BLUETOOTH_SCOUTER_DEBUG", "Loaded preference:" + i);
+                Log.d("HotTeam67", "Loaded preference:" + i);
                 Preference pref = getPreferenceScreen().getPreference(i);
                 if (pref instanceof EditTextPreference)
                 {
