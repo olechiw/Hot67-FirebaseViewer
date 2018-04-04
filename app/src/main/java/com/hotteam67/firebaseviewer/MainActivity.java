@@ -97,6 +97,17 @@ public class MainActivity extends AppCompatActivity {
         bar.setCustomView(finalView);
         bar.setDisplayShowCustomEnabled(true);
 
+        preferredOrder.add("Teleop Scale");
+        preferredOrder.add("Teleop Switch");
+        preferredOrder.add("Teleop Vault");
+        preferredOrder.add("Auton Scale");
+        preferredOrder.add("Auton Switch");
+        preferredOrder.add("Auton Vault");
+        preferredOrder.add("Climbed");
+        preferredOrder.add("Assisted");
+        preferredOrder.add("Was Assisted");
+
+
         settingsButton = finalView.findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(view -> onSettingsButton());
 
@@ -333,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseHelper helper = new FirebaseHelper(databaseUrl, eventName, apiKey);
         helper.LoadLocal();
-        rawData = new DataTableProcessor(helper.getResult());
+        rawData = new DataTableProcessor(helper.getResult(), preferredOrder);
         try {
             teamNumbersNames = new JSONObject(FileHandler.LoadContents(FileHandler.TEAM_NAMES));
         }
@@ -372,7 +383,8 @@ public class MainActivity extends AppCompatActivity {
         // Null child to get all raw data
         model.Download(() -> {
 
-            rawData = new DataTableProcessor(model.getResult());
+
+            rawData = new DataTableProcessor(model.getResult(), preferredOrder);
 
             refreshCalculations();
 
@@ -380,6 +392,7 @@ public class MainActivity extends AppCompatActivity {
             return null;
         });
     }
+    List<String> preferredOrder = new ArrayList<>();
 
 
     private void refreshCalculations()

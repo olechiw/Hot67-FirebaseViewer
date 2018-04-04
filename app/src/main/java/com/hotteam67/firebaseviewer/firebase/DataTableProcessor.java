@@ -23,13 +23,17 @@ public class DataTableProcessor implements Serializable {
     private List<List<CellModel>> cellList;
     private List<RowHeaderModel> rowHeaderList;
 
+    private List<String> preferredOrder;
+
     private final String TeamNumber = "Team Number";
 
-    public DataTableProcessor(HashMap<String, Object> rawData)
+    public DataTableProcessor(HashMap<String, Object> rawData, List<String> preferredOrder)
     {
         /*
         Load the Raw Data into model
          */
+        this.preferredOrder = preferredOrder;
+
         mColumnHeaderList = new ArrayList<>();
         cellList = new ArrayList<>();
         rowHeaderList = new ArrayList<>();
@@ -48,31 +52,13 @@ public class DataTableProcessor implements Serializable {
             // Load the row
             try {
                 HashMap<String, String> rowMap = (HashMap<String, String>) row.getValue();
-                cellList.add(new ArrayList<>());
-
-                // TeamNumber - before everything else
-                String number = rowMap.get(TeamNumber);
-                //cellList.get(row_id).add(new CellModel(row_id + "_0", number));
-                rowHeaderList.add(new RowHeaderModel(number));
-                rowMap.remove(TeamNumber);
-
-
-                int column_id = 0;
-                for (HashMap.Entry<String, String> cell : rowMap.entrySet()) {
-
-
-                    String cell_id = row_id + "_" + column_id;
-
-                    CellModel model = new CellModel(cell_id, cell.getValue());
-                    cellList.get(row_id).add(model);
-
-                    column_id++;
-                }
+                LoadRow(rowMap, row_id);
             }
             catch (Exception e)
             {
                 e.printStackTrace();
             }
+
             if (row_id == 0)
             {
                 // Load column headers on first row
@@ -80,12 +66,22 @@ public class DataTableProcessor implements Serializable {
                 {
                     if (rawData.entrySet().size() > 1)
                     {
-                        HashMap<String, String> row1 = (HashMap<String, String>) row.getValue();
+                        HashMap<String, String> rowMap = (HashMap<String, String>) row.getValue();
+                        for (String column : preferredOrder)
+                        {
+                            if (rowMap.keySet().contains(column))
+                            {
+                                mColumnHeaderList.add(new ColumnHeaderModel(column));
+                            }
+                        }
+
                         // TeamNumber
-                        row1.remove(TeamNumber);
+                        rowMap.remove(TeamNumber);
                         //mColumnHeaderList.add(new ColumnHeaderModel(TeamNumber));
-                        for (HashMap.Entry<String, String> column : row1.entrySet())
-                            mColumnHeaderList.add(new ColumnHeaderModel(column.getKey()));
+                        for (HashMap.Entry<String, String> column : rowMap.entrySet()) {
+                            if (!preferredOrder.contains(column.getKey()))
+                                mColumnHeaderList.add(new ColumnHeaderModel(column.getKey()));
+                        }
                     }
                     else
                     {
@@ -99,6 +95,37 @@ public class DataTableProcessor implements Serializable {
             }
 
             ++row_id;
+        }
+    }
+
+    private void LoadRow(HashMap<String, String> rowMap, int yIndex)
+    {
+        cellList.add(new ArrayList<>());
+
+        // TeamNumber - before everything else
+        String number = rowMap.get(TeamNumber);
+        if (number == null)
+            number = "";
+        //cellList.get(row_id).add(new CellModel(row_id + "_0", number));
+        rowHeaderList.add(new RowHeaderModel(number));
+        rowMap.remove(TeamNumber);
+
+        List<CellModel> row = cellList.get(yIndex);
+
+        for (String column : preferredOrder)
+        {
+            if (rowMap.keySet().contains(column))
+            {
+                CellModel model = new CellModel("0_0", rowMap.get(column));
+                row.add(model);
+            }
+        }
+
+        for (HashMap.Entry<String, String> cell : rowMap.entrySet()) {
+
+            CellModel model = new CellModel("0_0", cell.getValue());
+            if (!preferredOrder.contains(cell.getKey()))
+                row.add(model);
         }
     }
 
