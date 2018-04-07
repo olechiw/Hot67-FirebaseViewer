@@ -624,7 +624,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy()
     {
-        Cache();
         super.onDestroy();
     }
 }

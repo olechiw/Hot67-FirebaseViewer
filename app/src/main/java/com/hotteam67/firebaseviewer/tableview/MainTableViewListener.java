@@ -81,8 +81,12 @@ public class MainTableViewListener implements ITableViewListener {
                     values.add(Integer.valueOf(value));
             }
 
+            String title = teamNumber;
+            title += " - " + ((MainActivity)adapter.GetContext()).GetTeamNumbersNames().get(teamNumber);
+            title += ": " + rawColumnName;
+
             ScatterPlot.Show(
-                    values, ((MainTableAdapter) mTableView.getAdapter()).GetContext(), teamNumber);
+                    values, ((MainTableAdapter) mTableView.getAdapter()).GetContext(), title);
         }
         catch (Exception e)
         {

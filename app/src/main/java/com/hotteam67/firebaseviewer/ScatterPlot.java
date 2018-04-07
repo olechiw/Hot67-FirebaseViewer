@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.view.View;
 
@@ -14,9 +16,11 @@ import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.StepMode;
+import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYSeries;
 
+import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
@@ -29,7 +33,7 @@ import java.util.List;
  */
 
 public class ScatterPlot {
-    public static void Show(List<Integer> inputValues, Context c, String name)
+    public static void Show(List<Integer> inputValues, Context c, String title)
     {
         // Populate y-axis
         List<Integer> yValues = new ArrayList<>();
@@ -57,7 +61,7 @@ public class ScatterPlot {
                 new LineAndPointFormatter(Color.RED, Color.BLACK, null, null);
 
         XYPlot newPlot = (XYPlot)((MainActivity)c).getLayoutInflater().inflate(R.layout.xyplot, null);
-        newPlot.setTitle(name);
+        newPlot.setTitle(title);
 
         newPlot.setDomainBoundaries(0, BoundaryMode.FIXED, yValues.size() + 1, BoundaryMode.FIXED);
         newPlot.setDomainStep(StepMode.INCREMENT_BY_VAL, 1);
@@ -74,10 +78,11 @@ public class ScatterPlot {
         newPlot.setLinesPerDomainLabel(1);
         newPlot.setLinesPerRangeLabel(1);
 
-        newPlot.getGraph().setMargins(30, 35, 35, 30);
+        newPlot.getGraph().setMargins(100, 100, 35, 50);
         newPlot.setBackgroundColor(Color.WHITE);
         newPlot.getGraph().getBackgroundPaint().setColor(Color.WHITE);
         newPlot.getGraph().getGridBackgroundPaint().setColor(Color.WHITE);
+        newPlot.getBackgroundPaint().setColor(Color.WHITE);
 
         newPlot.getGraph().getDomainGridLinePaint().setColor(Color.BLACK);
         newPlot.getGraph().getRangeGridLinePaint().setColor(Color.BLACK);
@@ -87,8 +92,11 @@ public class ScatterPlot {
         newPlot.getGraph().getDomainOriginLinePaint().setColor(Color.BLACK);
         newPlot.getGraph().getRangeOriginLinePaint().setColor(Color.BLACK);
 
+        newPlot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new DecimalFormat("#"));
+
         newPlot.getDomainTitle().getLabelPaint().setColor(Color.BLACK);
         newPlot.getRangeTitle().getLabelPaint().setColor(Color.BLACK);
+        newPlot.getTitle().getLabelPaint().setColor(Color.BLACK);
 
 
         newPlot.addSeries(format, series);

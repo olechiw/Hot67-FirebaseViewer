@@ -7,6 +7,10 @@
     ap:lineLabels="left|bottom"
     ap:lineLabelTextColorBottom="#000000"
     ap:lineLabelTextColorLeft="#000000"
+    ap:lineLabelInsetLeft="-15dp"
+    ap:lineLabelInsetBottom="-15dp"
+    ap:title="Graph"
+    ap:titleTextSize="20dp"
     android:background="#000000">
 
 </com.androidplot.xy.XYPlot>
