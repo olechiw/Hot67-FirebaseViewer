@@ -1,22 +1,14 @@
 package com.hotteam67.firebaseviewer;
 
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.util.EventLog;
 import android.util.Log;
-
-import com.mashape.unirest.http.JsonNode;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;

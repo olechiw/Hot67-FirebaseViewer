@@ -1,22 +1,24 @@
 package com.hotteam67.firebaseviewer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.StateSet;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -51,8 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
     private TableView mTableView;
     private MainTableAdapter mTableAdapter;
-
-    private ProgressDialog mProgressDialog;
 
 
     private ImageButton settingsButton;
@@ -105,17 +105,6 @@ public class MainActivity extends AppCompatActivity {
                 ActionBar.LayoutParams.MATCH_PARENT));
         bar.setCustomView(finalView);
         bar.setDisplayShowCustomEnabled(true);
-
-        preferredOrder.add("Teleop Scale");
-        preferredOrder.add("Teleop Switch");
-        preferredOrder.add("Teleop Vault");
-        preferredOrder.add("Crossed Line");
-        preferredOrder.add("Auton Scale");
-        preferredOrder.add("Auton Switch");
-        preferredOrder.add("Auton Vault");
-        preferredOrder.add("Climbed");
-        preferredOrder.add("Assisted");
-        preferredOrder.add("Was Assisted");
 
 
         settingsButton = finalView.findViewById(R.id.settingsButton);
@@ -343,40 +332,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void refreshLocal()
     {
-        Log.d("HotTeam67", "Permissions exist");
+        showProgressDialog();
+        @SuppressLint("StaticFieldLeak") AsyncTask task = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                calculatedDataAverages = (CalculatedTableProcessor)
+                        FileHandler.DeSerialize(FileHandler.AVERAGES_CACHE);
+                calculatedDataMaximums = (CalculatedTableProcessor)
+                        FileHandler.DeSerialize(FileHandler.MAXIMUMS_CACHE);
+                rawData = (DataTableProcessor)
+                        FileHandler.DeSerialize(FileHandler.RAW_CACHE);
+                return null;
+            }
 
-        teamSearchView.setText(EMPTY);
-
-        SharedPreferences url = PreferenceManager.getDefaultSharedPreferences(this);
-        String databaseUrl = (String) url.getAll().get("pref_databaseUrl");
-        String eventName = (String) url.getAll().get("pref_eventName");
-        String apiKey = (String) url.getAll().get("pref_apiKey");
-
-        FirebaseHelper helper = new FirebaseHelper(databaseUrl, eventName, apiKey);
-        helper.LoadLocal();
-        rawData = new DataTableProcessor(helper.getResult(), preferredOrder);
-        try {
-            teamNumbersNames = new JSONObject(FileHandler.LoadContents(FileHandler.TEAM_NAMES));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            teamNumbersNames = new JSONObject();
-        }
-        try
-        {
-            teamNumbersRanks = new JSONObject(FileHandler.LoadContents(FileHandler.TEAM_RANKS));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            teamNumbersRanks = new JSONObject();
-        }
-        refreshCalculations();
+            @Override
+            protected void onPostExecute(Object o) {
+                super.onPostExecute(o);
+                Update();
+                hideProgressDialog();
+            }
+        };
+        task.execute();
     }
 
     private void refresh()
     {
+        showProgressDialog();
+
         teamSearchView.setText(EMPTY);
 
         long start = System.nanoTime();
@@ -393,7 +375,6 @@ public class MainActivity extends AppCompatActivity {
         final FirebaseHelper model = new FirebaseHelper(
                 databaseUrl, eventName, apiKey);
 
-        showProgressDialog();
         long downloadStart = System.nanoTime();
         // Null child to get all raw data
         model.Download(() -> {
@@ -403,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("HotTeam67", "model.Download() duration: " + downloadDuration + " ms");
 
             long rawDataStart = System.nanoTime();
-            rawData = new DataTableProcessor(model.getResult(), preferredOrder);
+            rawData = new DataTableProcessor(model.getResult(), ColumnSchema.PreferredOrder());
             long rawDataEnd = System.nanoTime();
             long rawDataDuration = (rawDataStart - rawDataEnd) / 1000000;
             Log.d("HotTeam67", "new DatatableProcessor() duration: " + rawDataDuration + " ms");
@@ -414,59 +395,44 @@ public class MainActivity extends AppCompatActivity {
             long refreshDuration = (refreshStart - refreshEnd) / 1000000;
             Log.d("HotTeam67", "refreshCalculations() duration: " + refreshDuration + " ms");
 
-            hideProgressDialog();
             return null;
         });
     }
-    List<String> preferredOrder = new ArrayList<>();
 
 
     private void refreshCalculations()
     {
-        List<String> calculatedColumns = new ArrayList<>();
-        List<String> calculatedColumnsIndices = new ArrayList<>();
+        // Apparently this can leak memory but I never want to dispose this activity so I ignore it
+        @SuppressLint("StaticFieldLeak") AsyncTask refreshTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                calculatedDataAverages = new CalculatedTableProcessor(
+                        rawData,
+                        ColumnSchema.CalculatedColumns(),
+                        ColumnSchema.CalculatedColumnsRawNames(),
+                        ColumnSchema.SumColumns(),
+                        teamNumbersRanks,
+                        CalculatedTableProcessor.Calculation.AVERAGE);
 
-        calculatedColumns.add("T. Scale");
-        calculatedColumnsIndices.add("Teleop Scale");
-        calculatedColumns.add("T. Switch");
-        calculatedColumnsIndices.add("Teleop Switch");
-        calculatedColumns.add("T. Vault");
-        calculatedColumnsIndices.add("Teleop Vault");
-        calculatedColumns.add("A. Crossed");
-        calculatedColumnsIndices.add("Crossed Line");
-        calculatedColumns.add("A. Scale");
-        calculatedColumnsIndices.add("Auton Scale");
-        calculatedColumns.add("A. Switch");
-        calculatedColumnsIndices.add("Auton Switch");
-        calculatedColumns.add("A. Vault");
-        calculatedColumnsIndices.add("Auton Vault");
-        calculatedColumns.add("Climbed");
-        calculatedColumnsIndices.add("Climbed");
-        calculatedColumns.add("Assisted");
-        calculatedColumnsIndices.add("Assisted");
+                calculatedDataMaximums = new CalculatedTableProcessor(
+                        rawData,
+                        ColumnSchema.CalculatedColumns(),
+                        ColumnSchema.CalculatedColumnsRawNames(),
+                        ColumnSchema.SumColumns(),
+                        teamNumbersRanks,
+                        CalculatedTableProcessor.Calculation.MAXIMUM);
 
-        CalculatedTableProcessor.SumColumn column = new CalculatedTableProcessor.SumColumn();
-        column.columnName = "Cubes";
-        column.columnsNames = new ArrayList<>();
-        column.columnsNames.add("A. Scale");
-        column.columnsNames.add("T. Scale");
-        column.columnsNames.add("A. Vault");
-        column.columnsNames.add("T. Vault");
-        column.columnsNames.add("A. Switch");
-        column.columnsNames.add("T. Switch");
+                return null;
+            }
 
-        ArrayList<CalculatedTableProcessor.SumColumn> sumColumns = new ArrayList<>();
-        sumColumns.add(column);
-
-
-        calculatedDataAverages = new CalculatedTableProcessor(
-                rawData,calculatedColumns, calculatedColumnsIndices, sumColumns, teamNumbersRanks,
-                CalculatedTableProcessor.Calculation.AVERAGE);
-
-        calculatedDataMaximums = new CalculatedTableProcessor(
-                rawData, calculatedColumns, calculatedColumnsIndices, sumColumns, teamNumbersRanks,
-                CalculatedTableProcessor.Calculation.MAXIMUM);
-        Update();
+            @Override
+            protected void onPostExecute(Object o) {
+                Update();
+                Cache();
+                hideProgressDialog();
+            }
+        };
+        refreshTask.execute();
     }
 
     private JSONObject teamNumbersNames;
@@ -540,6 +506,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void Update()
     {
+        if (calculatedDataMaximums == null || calculatedDataAverages == null)
+            return;
+
         if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
             mTableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
         else
@@ -636,19 +605,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showProgressDialog() {
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage("Getting data, please wait...");
-            mProgressDialog.setCancelable(false);
-        }
-
-        mProgressDialog.show();
+        RotateAnimation anim = (RotateAnimation)
+                AnimationUtils.loadAnimation(this, R.anim.rotate);
+        refreshButton.setAnimation(anim);
     }
 
     public void hideProgressDialog() {
+        refreshButton.clearAnimation();
+    }
 
-        if ((mProgressDialog != null) && mProgressDialog.isShowing())
-            mProgressDialog.dismiss();
-        mProgressDialog = null;
+    private void Cache()
+    {
+        FileHandler.Serialize(calculatedDataMaximums, FileHandler.MAXIMUMS_CACHE);
+        FileHandler.Serialize(calculatedDataAverages, FileHandler.AVERAGES_CACHE);
+        FileHandler.Serialize(rawData, FileHandler.RAW_CACHE);
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        Cache();
+        super.onDestroy();
     }
 }

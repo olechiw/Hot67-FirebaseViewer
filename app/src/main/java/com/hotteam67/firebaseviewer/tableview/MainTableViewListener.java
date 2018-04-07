@@ -7,7 +7,9 @@ import android.util.Log;
 
 import com.evrencoskun.tableview.ITableView;
 import com.evrencoskun.tableview.listener.ITableViewListener;
+import com.hotteam67.firebaseviewer.ColumnSchema;
 import com.hotteam67.firebaseviewer.FileHandler;
+import com.hotteam67.firebaseviewer.ScatterPlot;
 import com.hotteam67.firebaseviewer.MainActivity;
 import com.hotteam67.firebaseviewer.RawDataActivity;
 import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
@@ -36,7 +38,56 @@ public class MainTableViewListener implements ITableViewListener {
     @Override
     public void onCellClicked(@NonNull RecyclerView.ViewHolder p_jCellView, int p_nXPosition, int
             p_nYPosition) {
+        MainTableAdapter adapter = (MainTableAdapter)mTableView.getAdapter();
+        DataTableProcessor table = adapter.GetRawData();
 
+        if (table == null)
+            return;
+
+        try {
+            String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
+            table.SetTeamNumberFilter(teamNumber);
+
+            String calculatedColumnName =
+                    adapter.GetCalculatedData().GetColumns().get(p_nXPosition).getData();
+
+            String rawColumnName = ColumnSchema.CalculatedColumnsRawNames().get(
+                    ColumnSchema.CalculatedColumns().indexOf(calculatedColumnName)
+            );
+
+            // Find the x value in the raw data table
+            int index = -1;
+            for (ColumnHeaderModel header : table.GetColumns())
+            {
+                if (header.getData().equals(rawColumnName))
+                    index = table.GetColumns().indexOf(header);
+            }
+
+            if (index == -1)
+                return;
+
+
+            List<Integer> values = new ArrayList<>();
+
+            // Get each value and put in a single array
+            for (List<CellModel> row : table.GetCells())
+            {
+                String value = (String)row.get(index).getData();
+                if (value.equals("true") || value.equals("false"))
+                {
+                    values.add(Boolean.valueOf(value) ? 1 : 0);
+                }
+                else
+                    values.add(Integer.valueOf(value));
+            }
+
+            ScatterPlot.Show(
+                    values, ((MainTableAdapter) mTableView.getAdapter()).GetContext(), teamNumber);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override

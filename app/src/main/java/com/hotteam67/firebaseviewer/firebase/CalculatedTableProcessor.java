@@ -9,6 +9,7 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,17 +19,17 @@ import java.util.List;
  * Created by Jakob on 1/19/2018.
  */
 
-public class CalculatedTableProcessor {
+public class CalculatedTableProcessor implements Serializable {
 
     private DataTableProcessor rawDataTable;
     private List<String> columnsNames;
 
     private DataTableProcessor calculatedDataTable;
     private HashMap<String, Integer> calculatedColumnHeaders;
-    private JSONObject teamRanks;
+    private String teamRanksJson;
     private List<Integer> calculatedColumnIndices;
 
-    public final static class Calculation
+    public final static class Calculation implements Serializable
     {
         public static final int AVERAGE = 0;
         public static final int MAXIMUM = 1;
@@ -38,7 +39,7 @@ public class CalculatedTableProcessor {
     private int calculationType;
 
     private List<SumColumn> sumColumns;
-    public static class SumColumn
+    public static class SumColumn implements Serializable
     {
         public List<String> columnsNames;
         public String columnName;
@@ -50,7 +51,7 @@ public class CalculatedTableProcessor {
     {
         rawDataTable = rawData;
         columnsNames = rawData.GetColumnNames();
-        this.teamRanks = teamRanks;
+        this.teamRanksJson = teamRanks.toString();
         calculatedColumnIndices = new ArrayList<>();
         for (int i = 0; i < calculatedColumns.size(); ++i)
         {
@@ -161,7 +162,7 @@ public class CalculatedTableProcessor {
         {
             String team = rowHeaderModel.getData();
             try {
-                String teamRank = (String) teamRanks.get(team);
+                String teamRank = (String)  new JSONObject(teamRanksJson).get(team);
                 calcCells.get(calcRowHeaders.indexOf(rowHeaderModel)).add(0,
                         new CellModel("0_0", teamRank));
             }
@@ -175,13 +176,18 @@ public class CalculatedTableProcessor {
 
         calcColumnHeaders.add(0, new ColumnHeaderModel("R"));
 
-        // Do N/A Teams
-        Iterator<?> teamsIterator = teamRanks.keys();
         List<String> extraTeams = new ArrayList<>();
-        while (teamsIterator.hasNext())
+        // Do N/A Teams
+        try {
+            Iterator<?> teamsIterator = new JSONObject(teamRanksJson).keys();
+            while (teamsIterator.hasNext()) {
+                String s = (String) teamsIterator.next();
+                if (!teamNumbers.contains(s)) extraTeams.add(s);
+            }
+        }
+        catch (Exception e)
         {
-            String s = (String)teamsIterator.next();
-            if (!teamNumbers.contains(s)) extraTeams.add(s);
+            e.printStackTrace();
         }
 
 
