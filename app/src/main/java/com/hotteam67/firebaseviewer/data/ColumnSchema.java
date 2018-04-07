@@ -37,7 +37,7 @@ public class ColumnSchema {
         calculatedColumns.add("Cubes");
         calculatedColumns.add("T. Scale");
         calculatedColumns.add("T. Switch");
-        calculatedColumns.add("O-Switch");
+        calculatedColumns.add("O. Switch");
         calculatedColumns.add("T. Vault");
         calculatedColumns.add("A. Crossed");
         calculatedColumns.add("A. Scale");
