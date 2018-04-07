@@ -17,14 +17,15 @@ public class ColumnSchema {
         preferredOrder.add("Total Cubes");
         preferredOrder.add("Teleop Scale");
         preferredOrder.add("Teleop Switch");
+        preferredOrder.add("Opponent Switch");
         preferredOrder.add("Teleop Vault");
         preferredOrder.add("Crossed Line");
         preferredOrder.add("Auton Scale");
         preferredOrder.add("Auton Switch");
-        preferredOrder.add("Auton Vault");
+        preferredOrder.add("Cubes Dropped");
         preferredOrder.add("Climbed");
         preferredOrder.add("Assisted");
-        preferredOrder.add("Was Assisted");
+        preferredOrder.add("Auton Vault");
 
         return preferredOrder;
     }
@@ -36,13 +37,15 @@ public class ColumnSchema {
         calculatedColumns.add("Cubes");
         calculatedColumns.add("T. Scale");
         calculatedColumns.add("T. Switch");
+        calculatedColumns.add("O-Switch");
         calculatedColumns.add("T. Vault");
         calculatedColumns.add("A. Crossed");
         calculatedColumns.add("A. Scale");
         calculatedColumns.add("A. Switch");
-        calculatedColumns.add("A. Vault");
+        calculatedColumns.add("Drops");
         calculatedColumns.add("Climbed");
         calculatedColumns.add("Assisted");
+        calculatedColumns.add("A. Vault");
 
         return  calculatedColumns;
     }
@@ -54,13 +57,15 @@ public class ColumnSchema {
         calculatedColumnsIndices.add("Total Cubes");
         calculatedColumnsIndices.add("Teleop Scale");
         calculatedColumnsIndices.add("Teleop Switch");
+        calculatedColumnsIndices.add("Opponent Switch");
         calculatedColumnsIndices.add("Teleop Vault");
         calculatedColumnsIndices.add("Crossed Line");
         calculatedColumnsIndices.add("Auton Scale");
         calculatedColumnsIndices.add("Auton Switch");
-        calculatedColumnsIndices.add("Auton Vault");
+        calculatedColumnsIndices.add("Cubes Dropped");
         calculatedColumnsIndices.add("Climbed");
         calculatedColumnsIndices.add("Assisted");
+        calculatedColumnsIndices.add("Auton Vault");
 
         return calculatedColumnsIndices;
     }

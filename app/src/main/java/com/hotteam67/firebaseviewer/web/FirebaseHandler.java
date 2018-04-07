@@ -1,5 +1,6 @@
 package com.hotteam67.firebaseviewer.web;
 
+import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -54,6 +55,7 @@ public class FirebaseHandler {
         new RetreiveFirebaseTask().execute();
     }
 
+    @SuppressLint("StaticFieldLeak")
     class RetreiveFirebaseTask extends AsyncTask<Void, Void, String> {
         protected String doInBackground(Void... nothing)
         {

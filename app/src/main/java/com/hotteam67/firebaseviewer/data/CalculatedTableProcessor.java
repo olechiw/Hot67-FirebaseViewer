@@ -20,7 +20,6 @@ import java.util.List;
  */
 
 public class CalculatedTableProcessor implements Serializable {
-
     private DataTableProcessor rawDataTable;
     private List<String> columnsNames;
 
@@ -51,6 +50,8 @@ public class CalculatedTableProcessor implements Serializable {
             try {
                 if (columnsNames.contains(columnIndices.get(i)))
                     calculatedColumnIndices.add(columnsNames.indexOf(columnIndices.get(i)));
+                else
+                    calculatedColumnIndices.add(-1);
             }
             catch (Exception e)
             {
