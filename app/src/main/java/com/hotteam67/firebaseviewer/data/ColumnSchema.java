@@ -42,7 +42,7 @@ public class ColumnSchema {
         calculatedColumns.add("A. Crossed");
         calculatedColumns.add("A. Scale");
         calculatedColumns.add("A. Switch");
-        calculatedColumns.add("Drops");
+        calculatedColumns.add("Dropped");
         calculatedColumns.add("Climbed");
         calculatedColumns.add("Assisted");
         calculatedColumns.add("A. Vault");
