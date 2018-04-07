@@ -1,4 +1,4 @@
-package com.hotteam67.firebaseviewer.firebase;
+package com.hotteam67.firebaseviewer.data;
 
 import android.util.Log;
 
@@ -27,7 +27,10 @@ public class DataTableProcessor implements Serializable {
 
     private final String TeamNumber = "Team Number";
 
-    public DataTableProcessor(HashMap<String, Object> rawData, List<String> preferredOrder)
+    private List<SumColumn> sumColumns;
+
+    public DataTableProcessor(HashMap<String, Object> rawData, List<String> preferredOrder,
+                              List<SumColumn> sumColumns)
     {
         /*
         Load the Raw Data into model
@@ -37,6 +40,8 @@ public class DataTableProcessor implements Serializable {
         mColumnHeaderList = new ArrayList<>();
         cellList = new ArrayList<>();
         rowHeaderList = new ArrayList<>();
+
+        this.sumColumns = sumColumns;
 
         if (rawData == null)
             return;
@@ -67,6 +72,10 @@ public class DataTableProcessor implements Serializable {
                     if (rawData.entrySet().size() > 1)
                     {
                         HashMap<String, String> rowMap = (HashMap<String, String>) row.getValue();
+
+                        for (SumColumn sumColumn : sumColumns)
+                            mColumnHeaderList.add(new ColumnHeaderModel(sumColumn.columnName));
+
                         for (String column : preferredOrder)
                         {
                             if (rowMap.keySet().contains(column))
@@ -112,6 +121,31 @@ public class DataTableProcessor implements Serializable {
 
         List<CellModel> row = cellList.get(yIndex);
 
+        // Sum columns first
+        for (SumColumn sumColumn : sumColumns)
+        {
+            int value = 0;
+            for (String columnToSum : sumColumn.columnsNames)
+            {
+                try {
+                    if (rowMap.keySet().contains(columnToSum)) {
+                        String columnValue = rowMap.get(columnToSum);
+                        if (columnValue.equals("true") || columnValue.equals("false"))
+                            value += (Boolean.valueOf(columnValue)) ? 1 : 0;
+                        else
+                            value += Integer.valueOf(columnValue);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            row.add(new CellModel("0_0", String.valueOf(value)));
+        }
+
+        // Then preferred order
         for (String column : preferredOrder)
         {
             if (rowMap.keySet().contains(column))
@@ -121,6 +155,8 @@ public class DataTableProcessor implements Serializable {
             }
         }
 
+
+        // Last is other columns
         for (HashMap.Entry<String, String> cell : rowMap.entrySet()) {
 
             CellModel model = new CellModel("0_0", cell.getValue());
@@ -206,5 +242,11 @@ public class DataTableProcessor implements Serializable {
         }
         // Log.d("HotTeam67", "Returning rows: " + filteredRows.size());
         return filteredRows;
+    }
+
+    public static class SumColumn implements Serializable
+    {
+        public List<String> columnsNames;
+        public String columnName;
     }
 }

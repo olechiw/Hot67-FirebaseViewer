@@ -1,6 +1,6 @@
-package com.hotteam67.firebaseviewer;
+package com.hotteam67.firebaseviewer.data;
 
-import com.hotteam67.firebaseviewer.firebase.CalculatedTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTableProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ public class ColumnSchema {
     {
         List<String> preferredOrder = new ArrayList<>();
 
+        preferredOrder.add("Total Cubes");
         preferredOrder.add("Teleop Scale");
         preferredOrder.add("Teleop Switch");
         preferredOrder.add("Teleop Vault");
@@ -32,6 +33,7 @@ public class ColumnSchema {
     {
         List<String> calculatedColumns = new ArrayList<>();
 
+        calculatedColumns.add("Cubes");
         calculatedColumns.add("T. Scale");
         calculatedColumns.add("T. Switch");
         calculatedColumns.add("T. Vault");
@@ -49,6 +51,7 @@ public class ColumnSchema {
     {
         List<String> calculatedColumnsIndices = new ArrayList<>();
 
+        calculatedColumnsIndices.add("Total Cubes");
         calculatedColumnsIndices.add("Teleop Scale");
         calculatedColumnsIndices.add("Teleop Switch");
         calculatedColumnsIndices.add("Teleop Vault");
@@ -62,19 +65,19 @@ public class ColumnSchema {
         return calculatedColumnsIndices;
     }
 
-    public static List<CalculatedTableProcessor.SumColumn> SumColumns()
+    public static List<DataTableProcessor.SumColumn> SumColumns()
     {
-        CalculatedTableProcessor.SumColumn column = new CalculatedTableProcessor.SumColumn();
-        column.columnName = "Cubes";
+        DataTableProcessor.SumColumn column = new DataTableProcessor.SumColumn();
+        column.columnName = "Total Cubes";
         column.columnsNames = new ArrayList<>();
-        column.columnsNames.add("A. Scale");
-        column.columnsNames.add("T. Scale");
-        column.columnsNames.add("A. Vault");
-        column.columnsNames.add("T. Vault");
-        column.columnsNames.add("A. Switch");
-        column.columnsNames.add("T. Switch");
+        column.columnsNames.add("Auton Scale");
+        column.columnsNames.add("Teleop Scale");
+        column.columnsNames.add("Auton Vault");
+        column.columnsNames.add("Teleop Vault");
+        column.columnsNames.add("Auton Switch");
+        column.columnsNames.add("Teleop Switch");
 
-        ArrayList<CalculatedTableProcessor.SumColumn> sumColumns = new ArrayList<>();
+        ArrayList<DataTableProcessor.SumColumn> sumColumns = new ArrayList<>();
         sumColumns.add(column);
 
         return sumColumns;

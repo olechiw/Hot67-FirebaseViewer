@@ -1,4 +1,4 @@
-package com.hotteam67.firebaseviewer;
+package com.hotteam67.firebaseviewer.web;
 
 import android.os.AsyncTask;
 import android.util.Log;

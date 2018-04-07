@@ -11,10 +11,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.evrencoskun.tableview.TableView;
-import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
 import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
-import com.hotteam67.firebaseviewer.tableview.Sort;
+import com.hotteam67.firebaseviewer.data.Sort;
 
 public class RawDataActivity extends AppCompatActivity {
 
@@ -72,7 +72,7 @@ public class RawDataActivity extends AppCompatActivity {
                     return;
                 }
 
-                dataTableProcessor = Sort.BubbleSortDescendingByRowHeader(dataTableProcessor);
+                dataTableProcessor = Sort.BubbleSortAscendingByRowHeader(dataTableProcessor);
 
                 table = findViewById(R.id.mainTableView);
                 MainTableAdapter adapter = new MainTableAdapter(this);

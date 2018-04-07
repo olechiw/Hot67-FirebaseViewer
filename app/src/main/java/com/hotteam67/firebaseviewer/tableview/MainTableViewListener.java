@@ -5,14 +5,18 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.annimon.stream.Collector;
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.evrencoskun.tableview.ITableView;
 import com.evrencoskun.tableview.listener.ITableViewListener;
-import com.hotteam67.firebaseviewer.ColumnSchema;
+import com.hotteam67.firebaseviewer.data.ColumnSchema;
 import com.hotteam67.firebaseviewer.FileHandler;
-import com.hotteam67.firebaseviewer.ScatterPlot;
+import com.hotteam67.firebaseviewer.data.ScatterPlot;
 import com.hotteam67.firebaseviewer.MainActivity;
 import com.hotteam67.firebaseviewer.RawDataActivity;
-import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.Sort;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
@@ -39,14 +43,16 @@ public class MainTableViewListener implements ITableViewListener {
     public void onCellClicked(@NonNull RecyclerView.ViewHolder p_jCellView, int p_nXPosition, int
             p_nYPosition) {
         MainTableAdapter adapter = (MainTableAdapter)mTableView.getAdapter();
-        DataTableProcessor table = adapter.GetRawData();
+        DataTableProcessor rawData = adapter.GetRawData();
 
-        if (table == null)
+        if (rawData == null)
             return;
 
         try {
             String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
-            table.SetTeamNumberFilter(teamNumber);
+
+            DataTableProcessor table = Sort.BubbleSortAscendingByRowHeader(GetFormattedRawData(adapter, teamNumber));
+
 
             String calculatedColumnName =
                     adapter.GetCalculatedData().GetColumns().get(p_nXPosition).getData();
@@ -65,7 +71,6 @@ public class MainTableViewListener implements ITableViewListener {
 
             if (index == -1)
                 return;
-
 
             List<Integer> values = new ArrayList<>();
 
@@ -131,6 +136,9 @@ public class MainTableViewListener implements ITableViewListener {
     public void onRowHeaderClicked(@NonNull RecyclerView.ViewHolder p_jRowHeaderView, int
             p_nYPosition) {
         MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
+
+        String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
+
         DataTableProcessor rawData = adapter.GetRawData();
         if (rawData == null) {
             ((RawDataActivity) adapter.GetContext()).doEndWithMatchNumber(
@@ -139,7 +147,28 @@ public class MainTableViewListener implements ITableViewListener {
             return;
         }
 
-        String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
+            Log.d("HotTeam67", "Set team number filter: " + teamNumber);
+
+        DataTableProcessor formattedData = GetFormattedRawData(adapter, teamNumber);
+
+            Intent rawDataIntent = new Intent(adapter.GetContext(), RawDataActivity.class);
+            rawDataIntent.putExtra(RawDataActivity.RAW_DATA_ATTRIBUTE, formattedData);
+            rawDataIntent.putExtra(RawDataActivity.TEAM_NUMBER_ATTRIBUTE, teamNumber);
+
+            MainActivity activity = (MainActivity)adapter.GetContext();
+            try {
+                rawDataIntent.putExtra(RawDataActivity.TEAM_NAME_ATTRIBUTE, (String)activity.GetTeamNumbersNames().get(teamNumber));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+            activity.startActivityForResult(rawDataIntent, MainActivity.RawDataRequestCode);
+    }
+
+    private DataTableProcessor GetFormattedRawData(MainTableAdapter adapter, String teamNumber) {
+        DataTableProcessor rawData = adapter.GetRawData();
         rawData.SetTeamNumberFilter(teamNumber);
 
         /*
@@ -169,13 +198,11 @@ public class MainTableViewListener implements ITableViewListener {
              */
             List<String> matchNumbers = new ArrayList<>();
             String matches = FileHandler.LoadContents(FileHandler.VIEWER_MATCHES);
-            if (matches != null && !matches.trim().isEmpty())
-            {
+            if (matches != null && !matches.trim().isEmpty()) {
                 List<String> matchesArray = Arrays.asList(matches.split("\n"));
                 if (matchesArray.size() > 0)
                     // Load all team matches
-                    for (String match : matchesArray)
-                    {
+                    for (String match : matchesArray) {
                         if (Arrays.asList(match.split(",")).contains(teamNumber))
                             // +1 to make it from index to actual match number
                             matchNumbers.add(String.valueOf(matchesArray.indexOf(match) + 1));
@@ -184,10 +211,8 @@ public class MainTableViewListener implements ITableViewListener {
             /*
             Move header
              */
-            for (ColumnHeaderModel column : columns)
-            {
-                if (column.getData().equals(MatchNumber))
-                {
+            for (ColumnHeaderModel column : columns) {
+                if (column.getData().equals(MatchNumber)) {
                     matchNumberColumnIndex = columns.indexOf(column);
                 }
             }
@@ -195,8 +220,7 @@ public class MainTableViewListener implements ITableViewListener {
             /*
             Move value in each row
              */
-            if (matchNumberColumnIndex != -1)
-            {
+            if (matchNumberColumnIndex != -1) {
                 try {
                     columns.remove(matchNumberColumnIndex);
                     // columns.add(new ColumnHeaderModel("Match Number"));
@@ -210,24 +234,20 @@ public class MainTableViewListener implements ITableViewListener {
                             matchNumbers.remove(matchNumber);
                         }
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
             // Some matches not scouted
-            if (matchNumbers.size() > 0)
-            {
+            if (matchNumbers.size() > 0) {
                 int rowSize;
                 if (cells.size() > 0)
                     rowSize = cells.get(0).size();
                 else
                     rowSize = 1;
 
-                for (String matchNumber : matchNumbers)
-                {
+                for (String matchNumber : matchNumbers) {
                     try {
                         rows.add(new RowHeaderModel(matchNumber));
                         List<CellModel> naRow = new ArrayList<>();
@@ -235,9 +255,7 @@ public class MainTableViewListener implements ITableViewListener {
                             naRow.add(new CellModel("00", "N/A"));
                         }
                         cells.add(naRow);
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -246,27 +264,12 @@ public class MainTableViewListener implements ITableViewListener {
             DataTableProcessor finalData = new DataTableProcessor(
                     columns,
                     cells,
-                    rows
-            );
+                    rows);
 
-            Log.d("HotTeam67", "Set team number filter: " + teamNumber);
-
-
-            Intent rawDataIntent = new Intent(adapter.GetContext(), RawDataActivity.class);
-            rawDataIntent.putExtra(RawDataActivity.RAW_DATA_ATTRIBUTE, finalData);
-            rawDataIntent.putExtra(RawDataActivity.TEAM_NUMBER_ATTRIBUTE, teamNumber);
-
-            MainActivity activity = (MainActivity)adapter.GetContext();
-            try {
-                rawDataIntent.putExtra(RawDataActivity.TEAM_NAME_ATTRIBUTE, (String)activity.GetTeamNumbersNames().get(teamNumber));
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-
-            activity.startActivityForResult(rawDataIntent, MainActivity.RawDataRequestCode);
+            return finalData;
         }
+        else
+            return null;
     }
 
     @Override

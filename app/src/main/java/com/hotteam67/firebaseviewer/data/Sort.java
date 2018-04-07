@@ -1,6 +1,6 @@
-package com.hotteam67.firebaseviewer.tableview;
+package com.hotteam67.firebaseviewer.data;
 
-import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
@@ -8,15 +8,13 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by Jakob on 2/8/2018.
  */
 
 public final class Sort {
-    public static DataTableProcessor BubbleSortDescendingByRowHeader(DataTableProcessor input)
+    public static DataTableProcessor BubbleSortAscendingByRowHeader(DataTableProcessor input)
     {
         List<ColumnHeaderModel> columns = input.GetColumns();
         List<List<CellModel>> cells = input.GetCells();

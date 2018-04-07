@@ -1,4 +1,4 @@
-package com.hotteam67.firebaseviewer.firebase;
+package com.hotteam67.firebaseviewer.data;
 
 import android.util.Log;
 
@@ -38,15 +38,8 @@ public class CalculatedTableProcessor implements Serializable {
 
     private int calculationType;
 
-    private List<SumColumn> sumColumns;
-    public static class SumColumn implements Serializable
-    {
-        public List<String> columnsNames;
-        public String columnName;
-    }
-
     public CalculatedTableProcessor(DataTableProcessor rawData, List<String> calculatedColumns,
-                                    List<String> columnIndices, List<SumColumn> sumColumns,
+                                    List<String> columnIndices,
                                     JSONObject teamRanks, int calculationType)
     {
         rawDataTable = rawData;
@@ -55,10 +48,16 @@ public class CalculatedTableProcessor implements Serializable {
         calculatedColumnIndices = new ArrayList<>();
         for (int i = 0; i < calculatedColumns.size(); ++i)
         {
-            if (columnsNames.contains(columnIndices.get(i)))
-                calculatedColumnIndices.add(columnsNames.indexOf(columnIndices.get(i)));
+            try {
+                if (columnsNames.contains(columnIndices.get(i)))
+                    calculatedColumnIndices.add(columnsNames.indexOf(columnIndices.get(i)));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                calculatedColumnIndices.add(-1);
+            }
         }
-        this.sumColumns = sumColumns;
         this.calculationType = calculationType;
 
         SetupCalculatedColumns(calculatedColumns);
@@ -109,6 +108,10 @@ public class CalculatedTableProcessor implements Serializable {
             List<CellModel> row = new ArrayList<>();
             for (int column : calculatedColumnIndices)
             {
+                if (column == -1) {
+                    row.add(new CellModel("0_0", "N/A"));
+                    continue;
+                }
 
                 List<String> values = new ArrayList<>();
                 // Get raw data collection
@@ -126,37 +129,12 @@ public class CalculatedTableProcessor implements Serializable {
                 // Add cell to row
                 row.add(new CellModel(current_row + "_" + column, value.toString()));
             }
-            for (SumColumn sumColumn : sumColumns)
-            {
-                List<String> columnsToSum = sumColumn.columnsNames;
-                double sum = 0;
-                for (ColumnHeaderModel column : calcColumnHeaders)
-                {
-                    if (columnsToSum.contains(column.getData()))
-                    {
-                        try
-                        {
-                            sum += Double.valueOf(
-                                    row.get(calcColumnHeaders.indexOf(column)).getData().toString());
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                sum = Math.floor(sum * 1000) / 1000;
-                row.add(0, new CellModel("0_0", String.valueOf(sum)));
-            }
             // Add row to calculated list
             calcCells.add(row);
             calcRowHeaders.add(new RowHeaderModel(teamNumber));
 
             current_row++;
         }
-
-        for (SumColumn sum : sumColumns)
-            calcColumnHeaders.add(0, new ColumnHeaderModel(sum.columnName));
 
         for (RowHeaderModel rowHeaderModel : calcRowHeaders)
         {

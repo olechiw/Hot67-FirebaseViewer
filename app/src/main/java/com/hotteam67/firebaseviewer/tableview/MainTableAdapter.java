@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter;
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder;
 import com.hotteam67.firebaseviewer.R;
-import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.holder.CellViewHolder;
 import com.hotteam67.firebaseviewer.tableview.holder.ColumnHeaderViewHolder;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;

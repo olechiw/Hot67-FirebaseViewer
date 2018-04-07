@@ -1,4 +1,4 @@
-package com.hotteam67.firebaseviewer.firebase;
+package com.hotteam67.firebaseviewer.web;
 
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
@@ -27,7 +27,7 @@ import org.restonfire.FirebaseRestDatabase;
  * Created by Jakob on 1/13/2018.
  */
 
-public class FirebaseHelper {
+public class FirebaseHandler {
 
     String firebaseEvent;
     String firebaseUrl;
@@ -41,7 +41,7 @@ public class FirebaseHelper {
 
     HashMap<String, Object> results = null;
 
-    public FirebaseHelper(String url, String event, String apiKey)
+    public FirebaseHandler(String url, String event, String apiKey)
     {
         firebaseUrl = url;
         firebaseEvent = event;

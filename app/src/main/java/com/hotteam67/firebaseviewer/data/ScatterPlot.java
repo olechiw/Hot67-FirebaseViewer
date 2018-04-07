@@ -1,4 +1,4 @@
-package com.hotteam67.firebaseviewer;
+package com.hotteam67.firebaseviewer.data;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -19,6 +19,8 @@ import com.androidplot.xy.StepMode;
 import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYSeries;
+import com.hotteam67.firebaseviewer.MainActivity;
+import com.hotteam67.firebaseviewer.R;
 
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
@@ -63,7 +65,7 @@ public class ScatterPlot {
         XYPlot newPlot = (XYPlot)((MainActivity)c).getLayoutInflater().inflate(R.layout.xyplot, null);
         newPlot.setTitle(title);
 
-        newPlot.setDomainBoundaries(0, BoundaryMode.FIXED, yValues.size() + 1, BoundaryMode.FIXED);
+        newPlot.setDomainBoundaries(0, BoundaryMode.FIXED, xValues.size() + 1, BoundaryMode.FIXED);
         newPlot.setDomainStep(StepMode.INCREMENT_BY_VAL, 1);
 
         newPlot.getLayoutManager().remove(newPlot.getLegend());

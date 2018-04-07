@@ -24,15 +24,17 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.evrencoskun.tableview.TableView;
-import com.hotteam67.firebaseviewer.firebase.CalculatedTableProcessor;
-import com.hotteam67.firebaseviewer.firebase.FirebaseHelper;
-import com.hotteam67.firebaseviewer.firebase.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.CalculatedTableProcessor;
+import com.hotteam67.firebaseviewer.data.ColumnSchema;
+import com.hotteam67.firebaseviewer.data.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
 import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
-import com.hotteam67.firebaseviewer.tableview.Sort;
+import com.hotteam67.firebaseviewer.data.Sort;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
+import com.hotteam67.firebaseviewer.web.FirebaseHandler;
+import com.hotteam67.firebaseviewer.web.TBAHandler;
 
 import org.json.JSONObject;
 
@@ -372,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         String eventName = (String) prefs.getAll().get("pref_eventName");
         String apiKey = (String) prefs.getAll().get("pref_apiKey");
 
-        final FirebaseHelper model = new FirebaseHelper(
+        final FirebaseHandler model = new FirebaseHandler(
                 databaseUrl, eventName, apiKey);
 
         long downloadStart = System.nanoTime();
@@ -384,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("HotTeam67", "model.Download() duration: " + downloadDuration + " ms");
 
             long rawDataStart = System.nanoTime();
-            rawData = new DataTableProcessor(model.getResult(), ColumnSchema.PreferredOrder());
+            rawData = new DataTableProcessor(model.getResult(), ColumnSchema.PreferredOrder(), ColumnSchema.SumColumns());
             long rawDataEnd = System.nanoTime();
             long rawDataDuration = (rawDataStart - rawDataEnd) / 1000000;
             Log.d("HotTeam67", "new DatatableProcessor() duration: " + rawDataDuration + " ms");
@@ -410,7 +412,6 @@ public class MainActivity extends AppCompatActivity {
                         rawData,
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
-                        ColumnSchema.SumColumns(),
                         teamNumbersRanks,
                         CalculatedTableProcessor.Calculation.AVERAGE);
 
@@ -418,7 +419,6 @@ public class MainActivity extends AppCompatActivity {
                         rawData,
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
-                        ColumnSchema.SumColumns(),
                         teamNumbersRanks,
                         CalculatedTableProcessor.Calculation.MAXIMUM);
 
