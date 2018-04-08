@@ -1,7 +1,6 @@
 package com.hotteam67.firebaseviewer.web;
 
 import android.annotation.SuppressLint;
-import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -15,13 +14,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 
 import org.json.JSONObject;
-import org.restonfire.FirebaseRestDatabase;
 
 
 /**
@@ -30,17 +27,17 @@ import org.restonfire.FirebaseRestDatabase;
 
 public class FirebaseHandler {
 
-    String firebaseEvent;
-    String firebaseUrl;
-    String firebaseApiKey;
+    private String firebaseEvent;
+    private String firebaseUrl;
+    private String firebaseApiKey;
 
-    public static final String LocalDatabase = "localDatabase.json";
+    private static final String LocalDatabase = "localDatabase.json";
     private static final String Directory =
             Environment.getExternalStorageDirectory().getAbsolutePath() + "/BluetoothScouter/";
 
-    Callable firebaseCompleteEvent = null;
+    private Callable firebaseCompleteEvent = null;
 
-    HashMap<String, Object> results = null;
+    private HashMap<String, Object> results = null;
 
     public FirebaseHandler(String url, String event, String apiKey)
     {

@@ -53,20 +53,9 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.android.support:support-v4:27.0.2'
-    compile 'com.android.volley:volley:1.0.0'
-    compile 'com.google.code.gson:gson:2.8.2'
-    compile 'com.google.android.gms:play-services-auth:11.0.4'
-    compile 'com.google.android.gms:play-services-identity:11.0.4'
-    compile 'com.google.android.gms:play-services-base:11.0.4'
-    compile 'com.github.j-fischer:rest-on-fire:0.7.0'
-    compile 'com.evrencoskun.library:tableview:0.8.6'
-    compile 'org.fabiomsr:moneytextview:1.1.0'
-    compile 'com.annimon:stream:1.1.9'
-    compile 'com.mashape.unirest:unirest-java:1.4.9'
+    implementation 'com.android.volley:volley:1.0.0'
+    implementation 'com.evrencoskun.library:tableview:0.8.6'
+    implementation 'org.fabiomsr:moneytextview:1.1.0'
+    implementation 'com.annimon:stream:1.1.9'
     implementation 'com.androidplot:androidplot-core:1.5.4'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:0.5'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2.2'
-    implementation files('src/main/java/com/hotteam67/firebaseviewer/json-simple-1.1.1.jar')
-    annotationProcessor files('src/main/java/com/hotteam67/firebaseviewer/TBA-API-V3.jar')
 }
