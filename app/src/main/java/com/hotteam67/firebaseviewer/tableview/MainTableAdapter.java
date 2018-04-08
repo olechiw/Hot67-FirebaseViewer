@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter;
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder;
 import com.hotteam67.firebaseviewer.R;
-import com.hotteam67.firebaseviewer.data.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTable;
 import com.hotteam67.firebaseviewer.tableview.holder.CellViewHolder;
 import com.hotteam67.firebaseviewer.tableview.holder.ColumnHeaderViewHolder;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
@@ -26,8 +26,8 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
         super(p_jContext);
     }
 
-    public DataTableProcessor rawDataTableProcessor;
-    private DataTableProcessor calculatedDataTableProcessor;
+    public DataTable rawDataTable;
+    private DataTable calculatedDataTable;
 
     @Override
     public RecyclerView.ViewHolder onCreateCellViewHolder(ViewGroup parent, int viewType) {
@@ -52,20 +52,20 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
     }
 
 
-    public void setAllItems(DataTableProcessor table, DataTableProcessor rawData)
+    public void setAllItems(DataTable table, DataTable rawData)
     {
         setAllItems(table.GetColumns(), table.GetRowHeaders(), table.GetCells());
-        calculatedDataTableProcessor = table;
-        rawDataTableProcessor = rawData;
+        calculatedDataTable = table;
+        rawDataTable = rawData;
     }
 
 
-    public DataTableProcessor GetRawData()
+    public DataTable GetRawData()
     {
-        return rawDataTableProcessor;
+        return rawDataTable;
     }
 
-    public DataTableProcessor GetCalculatedData() { return calculatedDataTableProcessor; }
+    public DataTable GetCalculatedData() { return calculatedDataTable; }
 
     public Context GetContext()
     {

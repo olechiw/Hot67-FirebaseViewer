@@ -26,7 +26,7 @@ import android.widget.ImageButton;
 import com.evrencoskun.tableview.TableView;
 import com.hotteam67.firebaseviewer.data.CalculatedTableProcessor;
 import com.hotteam67.firebaseviewer.data.ColumnSchema;
-import com.hotteam67.firebaseviewer.data.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTable;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
 import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
 import com.hotteam67.firebaseviewer.data.Sort;
@@ -52,12 +52,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String BLUE = "BLUE";
     public static final String ALLIANCE = "A";
 
-
-    private TableView mTableView;
     private MainTableAdapter mTableAdapter;
 
-
-    private ImageButton settingsButton;
     private ImageButton refreshButton;
 
     private int REQUEST_ENABLE_PERMISSION = 3;
@@ -65,23 +61,24 @@ public class MainActivity extends AppCompatActivity {
     private EditText teamSearchView;
     private EditText matchSearchView;
 
-    DataTableProcessor rawData;
+    int calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
+    DataTable rawData;
     CalculatedTableProcessor calculatedDataAverages;
     CalculatedTableProcessor calculatedDataMaximums;
 
-    int calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
-
-    JSONObject teamNumbersRanks;
+    private JSONObject teamNumbersRanks;
+    private JSONObject teamNumbersNames;
 
     List<String> redTeams = new ArrayList<>();
     List<String> blueTeams = new ArrayList<>();
 
-    public MainActivity() {
-        // Required empty public constructor
-    }
+    public MainActivity() {}
 
     public static final int RawDataRequestCode = 1;
 
+    /*
+    Result for raw data activity, load the match number if one was selected
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -93,8 +90,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Construct UI
+     */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -109,31 +110,13 @@ public class MainActivity extends AppCompatActivity {
         bar.setDisplayShowCustomEnabled(true);
 
 
-        settingsButton = finalView.findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(view -> onSettingsButton());
+        ImageButton settingsButton = finalView.findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(view -> OnSettingsButton());
 
-        finalView.findViewById(R.id.calculationButton).setOnClickListener(v -> {
-            switch (calculationState)
-            {
-                case CalculatedTableProcessor.Calculation.AVERAGE:
-                    calculationState = CalculatedTableProcessor.Calculation.MAXIMUM;
-                    ((Button)v).setText(AVG);
-                    Update();
-                    if (!matchSearchView.getText().toString().isEmpty())
-                        matchSearchView.setText(matchSearchView.getText());
-                    break;
-                case CalculatedTableProcessor.Calculation.MAXIMUM:
-                    calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
-                    ((Button)v).setText(MAX);
-                    Update();
-                    if (!matchSearchView.getText().toString().isEmpty())
-                        matchSearchView.setText(matchSearchView.getText());
-                    break;
-            }
-        });
+        finalView.findViewById(R.id.calculationButton).setOnClickListener(this::OnCalculationButton);
 
         refreshButton = finalView.findViewById(R.id.refreshButton);
-        refreshButton.setOnClickListener(view -> refresh());
+        refreshButton.setOnClickListener(view -> RefreshTable());
 
         ImageButton clearButton = findViewById(R.id.clearButton);
         clearButton.setOnClickListener(v -> {
@@ -156,11 +139,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 try {
-                    SetFilter(editable.toString());
+                    SetTeamNumberFilter(editable.toString());
                     Update();
-                }
-                catch (NullPointerException e)
-                {
                 }
                 catch (Exception e)
                 {
@@ -183,134 +163,25 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                try
-                {
-                    if (s.toString().trim().isEmpty())
-                    {
-                        SetFilter(EMPTY);
-                        Update();
-                        return;
-                    }
-                    int matchNumber = Integer.valueOf(matchSearchView.getText().toString());
-                    if (matchNumber <= redTeams.size() && matchNumber <= blueTeams.size())
-                    {
-                        List<String> red = new ArrayList<>(
-                                Arrays.asList(redTeams.get(matchNumber - 1).split(",")));
-                        List<String> blue = new ArrayList<>(
-                                Arrays.asList(blueTeams.get(matchNumber - 1).split(",")));
-
-                        List<String> filters = new ArrayList<>();
-                        filters.addAll(red);
-                        filters.addAll(blue);
-
-                        List<ColumnHeaderModel> columns = new ArrayList<>();
-                        List<RowHeaderModel> rows = new ArrayList<>();
-                        List<List<CellModel>> cells = new ArrayList<>();
-                        columns.addAll(Processor().GetColumns());
-
-                        for (String team : filters)
-                        {
-                            SetFilter(team);
-                            rows.addAll(Processor().GetRowHeaders());
-
-                            for (List<CellModel> cell : Processor().GetCells())
-                            {
-                                List<CellModel> newRow = new ArrayList<>();
-                                newRow.addAll(cell);
-                                cells.add(newRow);
-                            }
-                        }
-
-                        DataTableProcessor processor = new DataTableProcessor(columns, cells, rows);
-                        processor.SetTeamNumberFilter(EMPTY);
-
-                        List<ColumnHeaderModel> columnHeaderModels = processor.GetColumns();
-                        columnHeaderModels.add(0, new ColumnHeaderModel(ALLIANCE));
-
-                        List<List<CellModel>> outputCells = processor.GetCells();
-                        for (int i = 0; i < outputCells.size(); ++i)
-                        {
-                            String teamNumber = processor.GetRowHeaders().get(i).getData();
-
-                            if (red.contains(teamNumber))
-                            {
-                                outputCells.get(i).add(0, new CellModel(i + "_00", RED));
-                            }
-                            else {
-                                outputCells.get(i).add(0, new CellModel(i + "_00", BLUE));
-                                blue.remove(teamNumber);
-                            }
-                            red.remove(teamNumber);
-                            blue.remove(teamNumber);
-                        }
-
-                        List<RowHeaderModel> rowHeaders = processor.GetRowHeaders();
-
-                        int firstRowSize = 0;
-                        if (outputCells.size() > 0)
-                        {
-                            firstRowSize = outputCells.get(0).size() - 1; // -1 for alliance
-                        }
-                        for (String team : red)
-                        {
-                            List<CellModel> row = new ArrayList<>();
-                            row.add(new CellModel("0", RED));
-
-                            for (int i = 0; i < firstRowSize; ++i)
-                            {
-                                row.add(new CellModel("0", N_A));
-                            }
-
-
-                            outputCells.add(row);
-                            rowHeaders.add(new RowHeaderModel(team));
-                        }
-                        for (String team : blue)
-                        {
-                            List<CellModel> row = new ArrayList<>();
-                            row.add(new CellModel("0", BLUE));
-
-                            for (int i = 0; i < firstRowSize; ++i)
-                            {
-                                row.add(new CellModel("0", N_A));
-                            }
-
-                            outputCells.add(row);
-                            rowHeaders.add(new RowHeaderModel(team));
-                        }
-
-                        DataTableProcessor newProcessor = new DataTableProcessor(columnHeaderModels, outputCells, rowHeaders);
-
-                        mTableAdapter.setAllItems(Sort.BubbleSortByColumn(newProcessor, 0, false), rawData); // Sort by alliance
-                    }
-                    else
-                    {
-                        calculatedDataAverages.GetProcessor().SetTeamNumberFilter(EMPTY);
-                        mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
+                OnMatchSearch(s);
             }
         });
 
-        mTableView = findViewById(R.id.mainTableView);
+        TableView tableView = findViewById(R.id.mainTableView);
 
         // Create TableView Adapter
         mTableAdapter = new MainTableAdapter(this);
-        mTableView.setAdapter(mTableAdapter);
+        tableView.setAdapter(mTableAdapter);
 
         // Create listener
-        mTableView.setTableViewListener(new MainTableViewListener(mTableView));
+        tableView.setTableViewListener(new MainTableViewListener(tableView));
 
         if (ContextCompat.checkSelfPermission(
                         this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         == PackageManager.PERMISSION_GRANTED)
         {
-            refreshLocal();
-            loadEventMatches();
+            LoadSerializedTables();
+            LoadTBADataLocal();
         }
         else
         {
@@ -321,20 +192,185 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    When the match search text changes
+     */
+    private void OnMatchSearch(Editable s)
+    {
+        try
+        {
+            if (s.toString().trim().isEmpty())
+            {
+                SetTeamNumberFilter(EMPTY);
+                Update();
+                return;
+            }
+            int matchNumber = Integer.valueOf(matchSearchView.getText().toString());
+            if (matchNumber <= redTeams.size() && matchNumber <= blueTeams.size())
+            {
+                List<String> red = new ArrayList<>(
+                        Arrays.asList(redTeams.get(matchNumber - 1).split(",")));
+                List<String> blue = new ArrayList<>(
+                        Arrays.asList(blueTeams.get(matchNumber - 1).split(",")));
+
+                List<String> filters = new ArrayList<>();
+                filters.addAll(red);
+                filters.addAll(blue);
+
+                List<RowHeaderModel> rows = new ArrayList<>();
+                List<List<CellModel>> cells = new ArrayList<>();
+                List<ColumnHeaderModel> columns = new ArrayList<>(GetActiveTable().GetColumns());
+
+                for (String team : filters)
+                {
+                    SetTeamNumberFilter(team);
+                    rows.addAll(GetActiveTable().GetRowHeaders());
+
+                    for (List<CellModel> cell : GetActiveTable().GetCells())
+                    {
+                        List<CellModel> newRow = new ArrayList<>(cell);
+                        cells.add(newRow);
+                    }
+                }
+
+                DataTable processor = new DataTable(columns, cells, rows);
+                processor.SetTeamNumberFilter(EMPTY);
+
+                List<ColumnHeaderModel> columnHeaderModels = processor.GetColumns();
+                columnHeaderModels.add(0, new ColumnHeaderModel(ALLIANCE));
+
+                List<List<CellModel>> outputCells = processor.GetCells();
+                for (int i = 0; i < outputCells.size(); ++i)
+                {
+                    String teamNumber = processor.GetRowHeaders().get(i).getData();
+
+                    if (red.contains(teamNumber))
+                    {
+                        outputCells.get(i).add(0, new CellModel(i + "_00", RED));
+                    }
+                    else {
+                        outputCells.get(i).add(0, new CellModel(i + "_00", BLUE));
+                        blue.remove(teamNumber);
+                    }
+                    red.remove(teamNumber);
+                    blue.remove(teamNumber);
+                }
+
+                List<RowHeaderModel> rowHeaders = processor.GetRowHeaders();
+
+                int firstRowSize = 0;
+                if (outputCells.size() > 0)
+                {
+                    firstRowSize = outputCells.get(0).size() - 1; // -1 for alliance
+                }
+                for (String team : red)
+                {
+                    List<CellModel> row = new ArrayList<>();
+                    row.add(new CellModel("0", RED));
+
+                    for (int i = 0; i < firstRowSize; ++i)
+                    {
+                        row.add(new CellModel("0", N_A));
+                    }
+
+
+                    outputCells.add(row);
+                    rowHeaders.add(new RowHeaderModel(team));
+                }
+                for (String team : blue)
+                {
+                    List<CellModel> row = new ArrayList<>();
+                    row.add(new CellModel("0", BLUE));
+
+                    for (int i = 0; i < firstRowSize; ++i)
+                    {
+                        row.add(new CellModel("0", N_A));
+                    }
+
+                    outputCells.add(row);
+                    rowHeaders.add(new RowHeaderModel(team));
+                }
+
+                DataTable newProcessor = new DataTable(columnHeaderModels, outputCells, rowHeaders);
+
+                mTableAdapter.setAllItems(Sort.BubbleSortByColumn(newProcessor, 0, false), rawData); // Sort by alliance
+            }
+            else
+            {
+                calculatedDataAverages.GetProcessor().SetTeamNumberFilter(EMPTY);
+                mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /*
+    Calculation button event handler
+     */
+    private void OnCalculationButton(View v)
+    {
+        switch (calculationState)
+        {
+            case CalculatedTableProcessor.Calculation.AVERAGE:
+                calculationState = CalculatedTableProcessor.Calculation.MAXIMUM;
+                ((Button)v).setText(AVG);
+                Update();
+                if (!matchSearchView.getText().toString().isEmpty())
+                    matchSearchView.setText(matchSearchView.getText());
+                break;
+            case CalculatedTableProcessor.Calculation.MAXIMUM:
+                calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
+                ((Button)v).setText(MAX);
+                Update();
+                if (!matchSearchView.getText().toString().isEmpty())
+                    matchSearchView.setText(matchSearchView.getText());
+                break;
+        }
+    }
+
+    /*
+    Settings button event handler
+     */
+    private void OnSettingsButton()
+    {
+        Intent settingsIntent = new Intent(this, PreferencesActivity.class);
+        startActivity(settingsIntent);
+    }
+
+    /*
+    Once disk permission is obtained
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         if (requestCode == REQUEST_ENABLE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
-                refreshLocal();
+                LoadSerializedTables();
+                LoadTBADataLocal();
             }
         }
     }
 
-    private void refreshLocal()
+    /*
+    Serialize the three datatables and write them to disk
+     */
+    private void SerializeTables()
     {
-        showProgressDialog();
+        FileHandler.Serialize(calculatedDataMaximums, FileHandler.MAXIMUMS_CACHE);
+        FileHandler.Serialize(calculatedDataAverages, FileHandler.AVERAGES_CACHE);
+        FileHandler.Serialize(rawData, FileHandler.RAW_CACHE);
+    }
+
+    /*
+    Load tables from disk into memory (raw, both calculated tables)
+     */
+    private void LoadSerializedTables()
+    {
+        StartProgressAnimation();
         @SuppressLint("StaticFieldLeak") AsyncTask task = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
@@ -342,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
                         FileHandler.DeSerialize(FileHandler.AVERAGES_CACHE);
                 calculatedDataMaximums = (CalculatedTableProcessor)
                         FileHandler.DeSerialize(FileHandler.MAXIMUMS_CACHE);
-                rawData = (DataTableProcessor)
+                rawData = (DataTable)
                         FileHandler.DeSerialize(FileHandler.RAW_CACHE);
                 return null;
             }
@@ -351,23 +387,26 @@ public class MainActivity extends AppCompatActivity {
             protected void onPostExecute(Object o) {
                 super.onPostExecute(o);
                 Update();
-                hideProgressDialog();
+                EndProgressAnimation();
             }
         };
         task.execute();
     }
 
-    private void refresh()
+    /*
+    Re-download all scouting data + TBA data, then refresh
+     */
+    private void RefreshTable()
     {
-        showProgressDialog();
+        StartProgressAnimation();
 
         teamSearchView.setText(EMPTY);
 
         long start = System.nanoTime();
-        downloadEventMatches();
+        LoadTBAData();
         long end = System.nanoTime();
         long duration = (start - end) / 1000000;
-        Log.d("HotTeam67", "downloadEventMatches() duration: " + duration + " ms");
+        Log.d("HotTeam67", "LoadTBAData() duration: " + duration + " ms");
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String databaseUrl = (String) prefs.getAll().get("pref_databaseUrl");
@@ -386,23 +425,25 @@ public class MainActivity extends AppCompatActivity {
             Log.d("HotTeam67", "model.Download() duration: " + downloadDuration + " ms");
 
             long rawDataStart = System.nanoTime();
-            rawData = new DataTableProcessor(model.getResult(), ColumnSchema.PreferredOrder(), ColumnSchema.SumColumns());
+            rawData = new DataTable(model.getResult(), ColumnSchema.PreferredOrder(), ColumnSchema.SumColumns());
             long rawDataEnd = System.nanoTime();
             long rawDataDuration = (rawDataStart - rawDataEnd) / 1000000;
             Log.d("HotTeam67", "new DatatableProcessor() duration: " + rawDataDuration + " ms");
 
             long refreshStart = System.nanoTime();
-            refreshCalculations();
+            RunCalculations();
             long refreshEnd = System.nanoTime();
             long refreshDuration = (refreshStart - refreshEnd) / 1000000;
-            Log.d("HotTeam67", "refreshCalculations() duration: " + refreshDuration + " ms");
+            Log.d("HotTeam67", "RunCalculations() duration: " + refreshDuration + " ms");
 
             return null;
         });
     }
 
-
-    private void refreshCalculations()
+    /*
+    Re-run all calculations with the current raw data
+     */
+    private void RunCalculations()
     {
         // Apparently this can leak memory but I never want to dispose this activity so I ignore it
         @SuppressLint("StaticFieldLeak") AsyncTask refreshTask = new AsyncTask() {
@@ -428,16 +469,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(Object o) {
                 Update();
-                Cache();
-                hideProgressDialog();
+                SerializeTables();
+                EndProgressAnimation();
             }
         };
         refreshTask.execute();
     }
 
-    private JSONObject teamNumbersNames;
-
-    private void downloadEventMatches()
+    /*
+    Load TBA data from the API v3
+     */
+    private void LoadTBAData()
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String matchCode = (String) prefs.getAll().get("pref_matchCode");
@@ -496,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            loadEventMatches();
+            LoadTBADataLocal();
         }
         catch (Exception e)
         {
@@ -504,32 +546,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void Update()
-    {
-        if (calculatedDataMaximums == null || calculatedDataAverages == null)
-            return;
-
-        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
-            mTableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
-        else
-            mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
-    }
-
-    private DataTableProcessor Processor()
-    {
-        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
-            return calculatedDataMaximums.GetProcessor();
-        else
-            return calculatedDataAverages.GetProcessor();
-    }
-
-    private void SetFilter(String s)
-    {
-        calculatedDataMaximums.GetProcessor().SetTeamNumberFilter(s);
-        calculatedDataAverages.GetProcessor().SetTeamNumberFilter(s);
-    }
-
-    private void loadEventMatches()
+    /*
+    Load TBA data from files
+     */
+    private void LoadTBADataLocal()
     {
         redTeams = new ArrayList<>();
         blueTeams = new ArrayList<>();
@@ -595,35 +615,62 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public JSONObject GetTeamNumbersNames() { return teamNumbersNames; }
-
-
-    private void onSettingsButton()
+    /*
+    Update the UI with the currently active table
+     */
+    private void Update()
     {
-        Intent settingsIntent = new Intent(this, PreferencesActivity.class);
-        startActivity(settingsIntent);
+        if (calculatedDataMaximums == null || calculatedDataAverages == null)
+            return;
+
+        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
+            mTableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
+        else
+            mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
     }
 
-    public void showProgressDialog() {
+    /*
+    Get the active datatable
+     */
+    private DataTable GetActiveTable()
+    {
+        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
+            return calculatedDataMaximums.GetProcessor();
+        else
+            return calculatedDataAverages.GetProcessor();
+    }
+
+    /*
+    Set the team number filter on the active table
+     */
+    private void SetTeamNumberFilter(String s)
+    {
+        calculatedDataMaximums.GetProcessor().SetTeamNumberFilter(s);
+        calculatedDataAverages.GetProcessor().SetTeamNumberFilter(s);
+    }
+
+    /*
+    Get a jsonobject of team numbers and team names
+     */
+    public JSONObject GetTeamNumbersNames() { return teamNumbersNames; }
+
+    /*
+    Spin the refresh button around, and disable it
+     */
+    private void StartProgressAnimation()
+    {
         RotateAnimation anim = (RotateAnimation)
                 AnimationUtils.loadAnimation(this, R.anim.rotate);
         refreshButton.setAnimation(anim);
+        refreshButton.setEnabled(false);
     }
 
-    public void hideProgressDialog() {
+    /*
+    Stop refresh button animation and enable it
+     */
+    private void EndProgressAnimation()
+    {
         refreshButton.clearAnimation();
-    }
-
-    private void Cache()
-    {
-        FileHandler.Serialize(calculatedDataMaximums, FileHandler.MAXIMUMS_CACHE);
-        FileHandler.Serialize(calculatedDataAverages, FileHandler.AVERAGES_CACHE);
-        FileHandler.Serialize(rawData, FileHandler.RAW_CACHE);
-    }
-
-    @Override
-    public void onDestroy()
-    {
-        super.onDestroy();
+        refreshButton.setEnabled(true);
     }
 }

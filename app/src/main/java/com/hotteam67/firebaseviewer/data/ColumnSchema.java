@@ -1,7 +1,5 @@
 package com.hotteam67.firebaseviewer.data;
 
-import com.hotteam67.firebaseviewer.data.DataTableProcessor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,9 +68,9 @@ public class ColumnSchema {
         return calculatedColumnsIndices;
     }
 
-    public static List<DataTableProcessor.SumColumn> SumColumns()
+    public static List<DataTable.SumColumn> SumColumns()
     {
-        DataTableProcessor.SumColumn column = new DataTableProcessor.SumColumn();
+        DataTable.SumColumn column = new DataTable.SumColumn();
         column.columnName = "Total Cubes";
         column.columnsNames = new ArrayList<>();
         column.columnsNames.add("Auton Scale");
@@ -82,7 +80,7 @@ public class ColumnSchema {
         column.columnsNames.add("Auton Switch");
         column.columnsNames.add("Teleop Switch");
 
-        ArrayList<DataTableProcessor.SumColumn> sumColumns = new ArrayList<>();
+        ArrayList<DataTable.SumColumn> sumColumns = new ArrayList<>();
         sumColumns.add(column);
 
         return sumColumns;

@@ -20,10 +20,10 @@ import java.util.List;
  */
 
 public class CalculatedTableProcessor implements Serializable {
-    private DataTableProcessor rawDataTable;
+    private DataTable rawDataTable;
     private List<String> columnsNames;
 
-    private DataTableProcessor calculatedDataTable;
+    private DataTable calculatedDataTable;
     private HashMap<String, Integer> calculatedColumnHeaders;
     private String teamRanksJson;
     private List<Integer> calculatedColumnIndices;
@@ -37,7 +37,7 @@ public class CalculatedTableProcessor implements Serializable {
 
     private int calculationType;
 
-    public CalculatedTableProcessor(DataTableProcessor rawData, List<String> calculatedColumns,
+    public CalculatedTableProcessor(DataTable rawData, List<String> calculatedColumns,
                                     List<String> columnIndices,
                                     JSONObject teamRanks, int calculationType)
     {
@@ -184,10 +184,10 @@ public class CalculatedTableProcessor implements Serializable {
             calcCells.add(row);
         }
 
-        calculatedDataTable = new DataTableProcessor(calcColumnHeaders, calcCells, calcRowHeaders);
+        calculatedDataTable = new DataTable(calcColumnHeaders, calcCells, calcRowHeaders);
     }
 
-    public DataTableProcessor GetProcessor()
+    public DataTable GetProcessor()
     {
         return calculatedDataTable;
     }

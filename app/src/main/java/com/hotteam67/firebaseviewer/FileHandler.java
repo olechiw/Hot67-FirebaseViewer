@@ -69,7 +69,7 @@ public final class FileHandler
         return f;
     }
 
-    public static final BufferedReader GetReader(int FILE)
+    public static BufferedReader GetReader(int FILE)
     {
         try
         {
@@ -98,7 +98,7 @@ public final class FileHandler
         return null;
     }
 
-    public static final FileWriter GetWriter(int FILE)
+    public static FileWriter GetWriter(int FILE)
     {
         String f = file(FILE);
 
@@ -130,7 +130,7 @@ public final class FileHandler
         return null;
     }
 
-    public static final String LoadContents(int file)
+    public static String LoadContents(int file)
     {
         String content = "";
         BufferedReader r = GetReader(file);
@@ -151,7 +151,7 @@ public final class FileHandler
         return content;
     }
 
-    public static final void Write(int FILE, String s)
+    public static void Write(int FILE, String s)
     {
         try
         {
@@ -203,8 +203,8 @@ public final class FileHandler
         }
     }
 
-    private static final void l(String s)
+    private static void l(String s)
     {
-        Log.d("[File Handling]", s);
+        Log.d("HotTeam67", s);
     }
 }

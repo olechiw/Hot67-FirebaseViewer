@@ -5,9 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.annimon.stream.Collector;
-import com.annimon.stream.Collectors;
-import com.annimon.stream.Stream;
 import com.evrencoskun.tableview.ITableView;
 import com.evrencoskun.tableview.listener.ITableViewListener;
 import com.hotteam67.firebaseviewer.data.ColumnSchema;
@@ -15,7 +12,7 @@ import com.hotteam67.firebaseviewer.FileHandler;
 import com.hotteam67.firebaseviewer.data.ScatterPlot;
 import com.hotteam67.firebaseviewer.MainActivity;
 import com.hotteam67.firebaseviewer.RawDataActivity;
-import com.hotteam67.firebaseviewer.data.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTable;
 import com.hotteam67.firebaseviewer.data.Sort;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
@@ -43,7 +40,7 @@ public class MainTableViewListener implements ITableViewListener {
     public void onCellClicked(@NonNull RecyclerView.ViewHolder p_jCellView, int p_nXPosition, int
             p_nYPosition) {
         MainTableAdapter adapter = (MainTableAdapter)mTableView.getAdapter();
-        DataTableProcessor rawData = adapter.GetRawData();
+        DataTable rawData = adapter.GetRawData();
 
         if (rawData == null)
             return;
@@ -51,7 +48,7 @@ public class MainTableViewListener implements ITableViewListener {
         try {
             String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
 
-            DataTableProcessor table = Sort.BubbleSortAscendingByRowHeader(GetFormattedRawData(adapter, teamNumber));
+            DataTable table = Sort.BubbleSortAscendingByRowHeader(GetFormattedRawData(adapter, teamNumber));
 
 
             String calculatedColumnName =
@@ -110,7 +107,7 @@ public class MainTableViewListener implements ITableViewListener {
             p_nXPosition) {
         Log.d("HotTeam67", "Sorting column: " + p_nXPosition);
         MainTableAdapter adapter = (MainTableAdapter) mTableView.getAdapter();
-        DataTableProcessor processor = adapter.GetCalculatedData();
+        DataTable processor = adapter.GetCalculatedData();
 
         if (processor == null || processor.GetCells() == null || processor.GetCells().size() == 0)
             return;
@@ -139,7 +136,7 @@ public class MainTableViewListener implements ITableViewListener {
 
         String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
 
-        DataTableProcessor rawData = adapter.GetRawData();
+        DataTable rawData = adapter.GetRawData();
         if (rawData == null) {
             ((RawDataActivity) adapter.GetContext()).doEndWithMatchNumber(
                     adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData()
@@ -149,7 +146,7 @@ public class MainTableViewListener implements ITableViewListener {
 
             Log.d("HotTeam67", "Set team number filter: " + teamNumber);
 
-        DataTableProcessor formattedData = GetFormattedRawData(adapter, teamNumber);
+        DataTable formattedData = GetFormattedRawData(adapter, teamNumber);
 
             Intent rawDataIntent = new Intent(adapter.GetContext(), RawDataActivity.class);
             rawDataIntent.putExtra(RawDataActivity.RAW_DATA_ATTRIBUTE, formattedData);
@@ -167,8 +164,8 @@ public class MainTableViewListener implements ITableViewListener {
             activity.startActivityForResult(rawDataIntent, MainActivity.RawDataRequestCode);
     }
 
-    private DataTableProcessor GetFormattedRawData(MainTableAdapter adapter, String teamNumber) {
-        DataTableProcessor rawData = adapter.GetRawData();
+    private DataTable GetFormattedRawData(MainTableAdapter adapter, String teamNumber) {
+        DataTable rawData = adapter.GetRawData();
         rawData.SetTeamNumberFilter(teamNumber);
 
         /*
@@ -261,7 +258,7 @@ public class MainTableViewListener implements ITableViewListener {
                 }
             }
 
-            DataTableProcessor finalData = new DataTableProcessor(
+            DataTable finalData = new DataTable(
                     columns,
                     cells,
                     rows);

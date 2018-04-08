@@ -1,6 +1,5 @@
 package com.hotteam67.firebaseviewer.data;
 
-import com.hotteam67.firebaseviewer.data.DataTableProcessor;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
@@ -14,7 +13,7 @@ import java.util.List;
  */
 
 public final class Sort {
-    public static DataTableProcessor BubbleSortAscendingByRowHeader(DataTableProcessor input)
+    public static DataTable BubbleSortAscendingByRowHeader(DataTable input)
     {
         List<ColumnHeaderModel> columns = input.GetColumns();
         List<List<CellModel>> cells = input.GetCells();
@@ -54,11 +53,11 @@ public final class Sort {
             }
         }
 
-        return new DataTableProcessor(columns, cells, rows);
+        return new DataTable(columns, cells, rows);
     }
 
-    public static DataTableProcessor BubbleSortByColumn(DataTableProcessor input, int column,
-                                                        boolean ascending)
+    public static DataTable BubbleSortByColumn(DataTable input, int column,
+                                               boolean ascending)
     {
 
 
@@ -87,7 +86,7 @@ public final class Sort {
         }
 
 
-        return new DataTableProcessor(columns, cells, newRows);
+        return new DataTable(columns, cells, newRows);
     }
 
     public static int Compare(String item1, String item2)

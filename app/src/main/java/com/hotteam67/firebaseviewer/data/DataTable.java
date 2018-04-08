@@ -18,7 +18,7 @@ import java.util.List;
  * Created by Jakob on 1/18/2018.
  */
 
-public class DataTableProcessor implements Serializable {
+public class DataTable implements Serializable {
     private List<ColumnHeaderModel> mColumnHeaderList;
     private List<List<CellModel>> cellList;
     private List<RowHeaderModel> rowHeaderList;
@@ -29,8 +29,8 @@ public class DataTableProcessor implements Serializable {
 
     private List<SumColumn> sumColumns;
 
-    public DataTableProcessor(HashMap<String, Object> rawData, List<String> preferredOrder,
-                              List<SumColumn> sumColumns)
+    public DataTable(HashMap<String, Object> rawData, List<String> preferredOrder,
+                     List<SumColumn> sumColumns)
     {
         /*
         Load the Raw Data into model
@@ -165,7 +165,7 @@ public class DataTableProcessor implements Serializable {
         }
     }
 
-    public DataTableProcessor(List<ColumnHeaderModel> columnNames, List<List<CellModel>> cellValues, List<RowHeaderModel> rowNames)
+    public DataTable(List<ColumnHeaderModel> columnNames, List<List<CellModel>> cellValues, List<RowHeaderModel> rowNames)
     {
         mColumnHeaderList = columnNames;
         cellList = cellValues;

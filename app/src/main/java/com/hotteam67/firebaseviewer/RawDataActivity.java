@@ -11,7 +11,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.evrencoskun.tableview.TableView;
-import com.hotteam67.firebaseviewer.data.DataTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTable;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
 import com.hotteam67.firebaseviewer.tableview.MainTableViewListener;
 import com.hotteam67.firebaseviewer.data.Sort;
@@ -25,7 +25,7 @@ public class RawDataActivity extends AppCompatActivity {
     public static final String TEAM_NAME_ATTRIBUTE = "team_name_attribute";
 
     private ImageButton backButton;
-    private DataTableProcessor dataTableProcessor;
+    private DataTable dataTable;
 
     TableView table;
 
@@ -50,7 +50,7 @@ public class RawDataActivity extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
         if (b != null)
         {
-            dataTableProcessor = (DataTableProcessor) b.getSerializable(RAW_DATA_ATTRIBUTE);
+            dataTable = (DataTable) b.getSerializable(RAW_DATA_ATTRIBUTE);
             String teamNumber = b.getString(TEAM_NUMBER_ATTRIBUTE);
             String title = "Raw Data: " + teamNumber;
             try
@@ -66,19 +66,19 @@ public class RawDataActivity extends AppCompatActivity {
 
 
         try {
-            if (dataTableProcessor != null) {
-                if (!(dataTableProcessor.GetCells().size() > 0)) {
+            if (dataTable != null) {
+                if (!(dataTable.GetCells().size() > 0)) {
                     Log.e("FirebaseScouter", "No input raw data found");
                     return;
                 }
 
-                dataTableProcessor = Sort.BubbleSortAscendingByRowHeader(dataTableProcessor);
+                dataTable = Sort.BubbleSortAscendingByRowHeader(dataTable);
 
                 table = findViewById(R.id.mainTableView);
                 MainTableAdapter adapter = new MainTableAdapter(this);
                 table.setAdapter(adapter);
                 table.setTableViewListener(new MainTableViewListener(table));
-                adapter.setAllItems(dataTableProcessor, null);
+                adapter.setAllItems(dataTable, null);
             }
         }
         catch (Exception e)
