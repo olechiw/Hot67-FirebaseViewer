@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String BLUE = "BLUE";
     public static final String ALLIANCE = "A";
 
-    private MainTableAdapter mTableAdapter;
+    private MainTableAdapter tableAdapter;
 
     private ImageButton refreshButton;
 
@@ -61,11 +61,15 @@ public class MainActivity extends AppCompatActivity {
     private EditText teamSearchView;
     private EditText matchSearchView;
 
+    // State for which calculation is currently in the UI
     int calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
     DataTable rawData;
+
+    // Both tables loaded into memory, meaning faster switching but slower loading
     CalculatedTableProcessor calculatedDataAverages;
     CalculatedTableProcessor calculatedDataMaximums;
 
+    // TBA-Pulled data, Rankings, Nicknames, and Schedule in sequential order
     private JSONObject teamNumbersRanks;
     private JSONObject teamNumbersNames;
 
@@ -170,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
         TableView tableView = findViewById(R.id.mainTableView);
 
         // Create TableView Adapter
-        mTableAdapter = new MainTableAdapter(this);
-        tableView.setAdapter(mTableAdapter);
+        tableAdapter = new MainTableAdapter(this);
+        tableView.setAdapter(tableAdapter);
 
         // Create listener
         tableView.setTableViewListener(new MainTableViewListener(tableView));
@@ -293,12 +297,12 @@ public class MainActivity extends AppCompatActivity {
 
                 DataTable newProcessor = new DataTable(columnHeaderModels, outputCells, rowHeaders);
 
-                mTableAdapter.setAllItems(Sort.BubbleSortByColumn(newProcessor, 0, false), rawData); // Sort by alliance
+                tableAdapter.setAllItems(Sort.BubbleSortByColumn(newProcessor, 0, false), rawData); // Sort by alliance
             }
             else
             {
                 calculatedDataAverages.GetProcessor().SetTeamNumberFilter(EMPTY);
-                mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
+                tableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
             }
         }
         catch (Exception e)
@@ -624,9 +628,9 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
-            mTableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
+            tableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
         else
-            mTableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
+            tableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
     }
 
     /*
