@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'mainkey'
+            keyPassword '@pianist1119'
+            storeFile file('C:/Users/Jakob/Documents/Android/Keys/key.jks')
+            storePassword '@pianist1119'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.hotteam67.firebaseviewer"
