@@ -32,7 +32,7 @@ public class MainTableViewListener implements ITableViewListener {
 
     private ITableView mTableView;
 
-    public final String MatchNumber = "Match Number";
+    private final String MatchNumber = "Match Number";
 
     public MainTableViewListener(ITableView pTableView) {
         this.mTableView = pTableView;
@@ -180,15 +180,12 @@ public class MainTableViewListener implements ITableViewListener {
         List<List<CellModel>> cells = new ArrayList<>();
         List<List<CellModel>> preCopyData = rawData.GetCells();
         for (List<CellModel> row : preCopyData) {
-            ArrayList<CellModel> newRow = new ArrayList<>();
-            newRow.addAll(row);
+            ArrayList<CellModel> newRow = new ArrayList<>(row);
             cells.add(newRow);
         }
 
-        List<RowHeaderModel> rows = new ArrayList<>();
-        rows.addAll(rawData.GetRowHeaders());
-        List<ColumnHeaderModel> columns = new ArrayList<>();
-        columns.addAll(rawData.GetColumns());
+        List<RowHeaderModel> rows = new ArrayList<>(rawData.GetRowHeaders());
+        List<ColumnHeaderModel> columns = new ArrayList<>(rawData.GetColumns());
 
 
         /*
@@ -244,11 +241,7 @@ public class MainTableViewListener implements ITableViewListener {
 
             // Some matches not scouted
             if (matchNumbers.size() > 0) {
-                int rowSize;
-                if (cells.size() > 0)
-                    rowSize = cells.get(0).size();
-                else
-                    rowSize = 1;
+                int rowSize = columns.size();
 
                 for (String matchNumber : matchNumbers) {
                     try {
@@ -264,12 +257,10 @@ public class MainTableViewListener implements ITableViewListener {
                 }
             }
 
-            DataTable finalData = new DataTable(
+            return new DataTable(
                     columns,
                     cells,
                     rows);
-
-            return finalData;
         }
         else
             return null;
