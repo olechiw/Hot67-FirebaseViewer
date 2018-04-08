@@ -39,7 +39,7 @@ public class ColumnHeaderViewHolder extends AbstractSorterViewHolder {
     public void setColumnHeaderModel(ColumnHeaderModel pColumnHeaderModel, int pColumnPosition) {
 
         // Change alignment of textView
-        column_header_textview.setGravity(COLUMN_TEXT_ALIGNS[pColumnPosition] | Gravity
+        column_header_textview.setGravity(Gravity.CENTER_HORIZONTAL | Gravity
                 .CENTER_VERTICAL);
 
         // Set text data
@@ -118,38 +118,4 @@ public class ColumnHeaderViewHolder extends AbstractSorterViewHolder {
             }
         }
     };
-
-    public static final int[] COLUMN_TEXT_ALIGNS = {
-            // Id
-            Gravity.CENTER,
-            // Name
-            Gravity.LEFT,
-            // Nickname
-            Gravity.LEFT,
-            // Email
-            Gravity.LEFT,
-            // BirthDay
-            Gravity.CENTER,
-            // Gender (Sex)
-            Gravity.CENTER,
-            // Age
-            Gravity.CENTER,
-            // Job
-            Gravity.LEFT,
-            // Salary
-            Gravity.CENTER,
-            // CreatedAt
-            Gravity.CENTER,
-            // UpdatedAt
-            Gravity.CENTER,
-            // Address
-            Gravity.LEFT,
-            // Zip Code
-            Gravity.RIGHT,
-            // Phone
-            Gravity.RIGHT,
-            // Fax
-            Gravity.RIGHT};
-
-
 }

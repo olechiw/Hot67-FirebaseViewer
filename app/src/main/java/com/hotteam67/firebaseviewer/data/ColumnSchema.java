@@ -8,26 +8,6 @@ import java.util.List;
  */
 
 public class ColumnSchema {
-    public static List<String> PreferredOrder()
-    {
-        List<String> preferredOrder = new ArrayList<>();
-
-        preferredOrder.add("Total Cubes");
-        preferredOrder.add("Teleop Scale");
-        preferredOrder.add("Teleop Switch");
-        preferredOrder.add("Opponent Switch");
-        preferredOrder.add("Teleop Vault");
-        preferredOrder.add("Crossed Line");
-        preferredOrder.add("Auton Scale");
-        preferredOrder.add("Auton Switch");
-        preferredOrder.add("Cubes Dropped");
-        preferredOrder.add("Climbed");
-        preferredOrder.add("Assisted");
-        preferredOrder.add("Auton Vault");
-
-        return preferredOrder;
-    }
-
     public static List<String> CalculatedColumns()
     {
         List<String> calculatedColumns = new ArrayList<>();

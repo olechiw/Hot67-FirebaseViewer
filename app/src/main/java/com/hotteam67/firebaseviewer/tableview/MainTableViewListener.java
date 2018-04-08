@@ -18,6 +18,8 @@ import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -75,6 +77,8 @@ public class MainTableViewListener implements ITableViewListener {
             for (List<CellModel> row : table.GetCells())
             {
                 String value = (String)row.get(index).getData();
+                if (value.equals("N/A"))
+                    continue;
                 if (value.equals("true") || value.equals("false"))
                 {
                     values.add(Boolean.valueOf(value) ? 1 : 0);
@@ -84,7 +88,9 @@ public class MainTableViewListener implements ITableViewListener {
             }
 
             String title = teamNumber;
-            title += " - " + ((MainActivity)adapter.GetContext()).GetTeamNumbersNames().get(teamNumber);
+            JSONObject teamNumbersNames =((MainActivity)adapter.GetContext()).GetTeamNumbersNames();
+            if (!(teamNumbersNames == null) && teamNumbersNames.has(teamNumber))
+                title += " - " + teamNumbersNames.get(teamNumber);
             title += ": " + rawColumnName;
 
             ScatterPlot.Show(
@@ -249,7 +255,7 @@ public class MainTableViewListener implements ITableViewListener {
                         rows.add(new RowHeaderModel(matchNumber));
                         List<CellModel> naRow = new ArrayList<>();
                         for (int i = 0; i < rowSize; ++i) {
-                            naRow.add(new CellModel("00", "N/A"));
+                            naRow.add(new CellModel("0_0", "N/A"));
                         }
                         cells.add(naRow);
                     } catch (Exception e) {

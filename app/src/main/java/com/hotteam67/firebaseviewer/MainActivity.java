@@ -406,11 +406,7 @@ public class MainActivity extends AppCompatActivity {
 
         teamSearchView.setText(EMPTY);
 
-        long start = System.nanoTime();
         LoadTBAData();
-        long end = System.nanoTime();
-        long duration = (start - end) / 1000000;
-        Log.d("HotTeam67", "LoadTBAData() duration: " + duration + " ms");
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String databaseUrl = (String) prefs.getAll().get("pref_databaseUrl");
@@ -420,25 +416,12 @@ public class MainActivity extends AppCompatActivity {
         final FirebaseHandler model = new FirebaseHandler(
                 databaseUrl, eventName, apiKey);
 
-        long downloadStart = System.nanoTime();
         // Null child to get all raw data
         model.Download(() -> {
 
-            long downloadEnd = System.nanoTime();
-            long downloadDuration = (downloadStart - downloadEnd) / 1000000;
-            Log.d("HotTeam67", "model.Download() duration: " + downloadDuration + " ms");
+            rawData = new DataTable(model.getResult(), ColumnSchema.CalculatedColumnsRawNames(), ColumnSchema.SumColumns());
 
-            long rawDataStart = System.nanoTime();
-            rawData = new DataTable(model.getResult(), ColumnSchema.PreferredOrder(), ColumnSchema.SumColumns());
-            long rawDataEnd = System.nanoTime();
-            long rawDataDuration = (rawDataStart - rawDataEnd) / 1000000;
-            Log.d("HotTeam67", "new DatatableProcessor() duration: " + rawDataDuration + " ms");
-
-            long refreshStart = System.nanoTime();
             RunCalculations();
-            long refreshEnd = System.nanoTime();
-            long refreshDuration = (refreshStart - refreshEnd) / 1000000;
-            Log.d("HotTeam67", "RunCalculations() duration: " + refreshDuration + " ms");
 
             return null;
         });
@@ -508,9 +491,8 @@ public class MainActivity extends AppCompatActivity {
                                 s.append(",");
                         }
                         s.append("\n");
-
-                        FileHandler.Write(FileHandler.VIEWER_MATCHES, s.toString());
                     }
+                    FileHandler.Write(FileHandler.VIEWER_MATCHES, s.toString());
                 }
                 catch (Exception e)
                 {
