@@ -364,9 +364,19 @@ public class MainActivity extends AppCompatActivity {
      */
     private void SerializeTables()
     {
-        FileHandler.Serialize(calculatedDataMaximums, FileHandler.MAXIMUMS_CACHE);
-        FileHandler.Serialize(calculatedDataAverages, FileHandler.AVERAGES_CACHE);
-        FileHandler.Serialize(rawData, FileHandler.RAW_CACHE);
+        @SuppressLint("StaticFieldLeak") AsyncTask serializeTask = new AsyncTask()
+        {
+            @Override
+            protected Object doInBackground(Object[] objects)
+            {
+                FileHandler.Serialize(calculatedDataMaximums, FileHandler.MAXIMUMS_CACHE);
+                FileHandler.Serialize(calculatedDataAverages, FileHandler.AVERAGES_CACHE);
+                FileHandler.Serialize(rawData, FileHandler.RAW_CACHE);
+                return null;
+            }
+        };
+        serializeTask.execute();
+
     }
 
     /*
@@ -432,35 +442,62 @@ public class MainActivity extends AppCompatActivity {
      */
     private void RunCalculations()
     {
-        // Apparently this can leak memory but I never want to dispose this activity so I ignore it
-        @SuppressLint("StaticFieldLeak") AsyncTask refreshTask = new AsyncTask() {
+        // Runs
+        @SuppressLint("StaticFieldLeak") AsyncTask averagesTask = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                calculatedDataAverages = new CalculatedTableProcessor(
+                CalculatedTableProcessor averages = new CalculatedTableProcessor(
                         rawData,
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
                         teamNumbersRanks,
                         CalculatedTableProcessor.Calculation.AVERAGE);
+                SetCalculatedDataAverages(averages);
+                UpdateIfLoaded();
 
-                calculatedDataMaximums = new CalculatedTableProcessor(
+                return null;
+            }
+        };
+        @SuppressLint("StaticFieldLeak") AsyncTask maximumsTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                CalculatedTableProcessor maximums = new CalculatedTableProcessor(
                         rawData,
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
                         teamNumbersRanks,
                         CalculatedTableProcessor.Calculation.MAXIMUM);
+                SetCalculatedDataMaximums(maximums);
+                UpdateIfLoaded();
 
                 return null;
             }
-
-            @Override
-            protected void onPostExecute(Object o) {
-                Update();
-                SerializeTables();
-                EndProgressAnimation();
-            }
         };
-        refreshTask.execute();
+        averagesTask.execute();
+        maximumsTask.execute();
+    }
+
+    private synchronized void SetCalculatedDataAverages(CalculatedTableProcessor table)
+    {
+        calculatedDataAverages = table;
+    }
+
+    private synchronized void SetCalculatedDataMaximums(CalculatedTableProcessor table)
+    {
+        calculatedDataMaximums = table;
+    }
+
+    private synchronized void UpdateIfLoaded()
+    {
+        if (calculatedDataMaximums != null && calculatedDataAverages != null)
+        {
+            runOnUiThread(() ->
+            {
+                Update();
+                EndProgressAnimation();
+                SerializeTables();
+            });
+        }
     }
 
     /*
