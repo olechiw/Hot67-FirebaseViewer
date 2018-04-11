@@ -451,6 +451,7 @@ public class MainActivity extends AppCompatActivity {
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
                         teamNumbersRanks,
+                        teamNumbersNames,
                         CalculatedTableProcessor.Calculation.AVERAGE);
                 SetCalculatedDataAverages(averages);
                 UpdateIfLoaded();
@@ -466,6 +467,7 @@ public class MainActivity extends AppCompatActivity {
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
                         teamNumbersRanks,
+                        teamNumbersNames,
                         CalculatedTableProcessor.Calculation.MAXIMUM);
                 SetCalculatedDataMaximums(maximums);
                 UpdateIfLoaded();

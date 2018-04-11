@@ -26,6 +26,7 @@ public class CalculatedTableProcessor implements Serializable {
     private DataTable calculatedDataTable;
     private HashMap<String, Integer> calculatedColumnHeaders;
     private String teamRanksJson;
+    private String teamNamesJson;
     private List<Integer> calculatedColumnIndices;
 
     public final static class Calculation implements Serializable
@@ -39,9 +40,11 @@ public class CalculatedTableProcessor implements Serializable {
 
     public CalculatedTableProcessor(DataTable rawData, List<String> calculatedColumns,
                                     List<String> columnIndices,
-                                    JSONObject teamRanks, int calculationType)
+                                    JSONObject teamRanks, JSONObject teamNames,
+                                    int calculationType)
     {
         rawDataTable = rawData;
+        teamNamesJson = teamNames.toString();
         columnsNames = rawData.GetColumnNames();
         this.teamRanksJson = teamRanks.toString();
         calculatedColumnIndices = new ArrayList<>();
@@ -165,7 +168,7 @@ public class CalculatedTableProcessor implements Serializable {
         List<String> extraTeams = new ArrayList<>();
         // Do N/A Teams
         try {
-            Iterator<?> teamsIterator = new JSONObject(teamRanksJson).keys();
+            Iterator<?> teamsIterator = new JSONObject(teamNamesJson).keys();
             while (teamsIterator.hasNext()) {
                 String s = (String) teamsIterator.next();
                 if (!teamNumbers.contains(s)) extraTeams.add(s);

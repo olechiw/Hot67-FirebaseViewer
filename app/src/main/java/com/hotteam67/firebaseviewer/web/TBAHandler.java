@@ -27,6 +27,7 @@ public class TBAHandler {
     private static final String BASE_URL = "https://www.thebluealliance.com/api/v3";
     private static final String EVENT = "/event/";
     private static final String TEAMS = "/teams";
+    private static final String SIMPLE = "/simple";
     private static final String MATCHES = "/matches/simple";
     private static final String STATUSES = "/statuses";
 
