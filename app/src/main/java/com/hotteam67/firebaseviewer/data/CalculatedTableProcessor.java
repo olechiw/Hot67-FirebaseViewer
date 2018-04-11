@@ -102,9 +102,15 @@ public class CalculatedTableProcessor implements Serializable {
             for (List<CellModel> row : rawDataTable.GetCells())
             {
                 int index = rawDataTable.GetCells().indexOf(row);
-                if (index != -1 && index < rawRowHeaders.size() && rawRowHeaders.get(rawDataTable.GetCells().indexOf(row))
-                        .getData().equals(teamNumber))
-                    matches.add(row);
+                try
+                {
+                    if (index != -1 && index < rawRowHeaders.size() && rawRowHeaders.get(rawDataTable.GetCells().indexOf(row))
+                            .getData().equals(teamNumber))
+                        matches.add(row);
+                }
+                catch (Exception e)
+                {
+                }
             }
 
             List<CellModel> row = new ArrayList<>();

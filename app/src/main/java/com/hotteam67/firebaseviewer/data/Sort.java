@@ -13,7 +13,8 @@ import java.util.List;
  */
 
 public final class Sort {
-    public static DataTable BubbleSortAscendingByRowHeader(DataTable input)
+    //TODO: OPTIMIZE (NOT BUBBLE SORT)
+    public static DataTable BubbleSortDescendingByRowHeader(DataTable input)
     {
         List<ColumnHeaderModel> columns = input.GetColumns();
         List<List<CellModel>> cells = input.GetCells();

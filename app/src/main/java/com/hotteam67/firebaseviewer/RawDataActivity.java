@@ -72,7 +72,7 @@ public class RawDataActivity extends AppCompatActivity {
                     return;
                 }
 
-                dataTable = Sort.BubbleSortAscendingByRowHeader(dataTable);
+                dataTable = Sort.BubbleSortDescendingByRowHeader(dataTable);
 
                 table = findViewById(R.id.mainTableView);
                 MainTableAdapter adapter = new MainTableAdapter(this);
