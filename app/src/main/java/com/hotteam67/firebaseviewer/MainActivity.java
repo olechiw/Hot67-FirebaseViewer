@@ -372,6 +372,7 @@ public class MainActivity extends AppCompatActivity {
                 FileHandler.Serialize(calculatedDataMaximums, FileHandler.MAXIMUMS_CACHE);
                 FileHandler.Serialize(calculatedDataAverages, FileHandler.AVERAGES_CACHE);
                 FileHandler.Serialize(rawData, FileHandler.RAW_CACHE);
+                runOnUiThread(() -> EndProgressAnimation());
                 return null;
             }
         };
@@ -496,7 +497,6 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() ->
             {
                 Update();
-                EndProgressAnimation();
                 SerializeTables();
             });
         }

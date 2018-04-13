@@ -59,6 +59,7 @@ public class ColumnSchema {
         column.columnsNames.add("Teleop Vault");
         column.columnsNames.add("Auton Switch");
         column.columnsNames.add("Teleop Switch");
+        column.columnsNames.add("Opponent Switch");
 
         ArrayList<DataTable.SumColumn> sumColumns = new ArrayList<>();
         sumColumns.add(column);
