@@ -50,8 +50,10 @@ public class MainTableViewListener implements ITableViewListener {
         try {
             String teamNumber = adapter.GetCalculatedData().GetRowHeaders().get(p_nYPosition).getData();
 
-            DataTable table = GetFormattedRawData(adapter, teamNumber);
+            DataTable table = Sort.BubbleSortAscendingByRowHeader(GetFormattedRawData(adapter, teamNumber));
 
+            if (table == null)
+                return;
 
             String calculatedColumnName =
                     adapter.GetCalculatedData().GetColumns().get(p_nXPosition).getData();

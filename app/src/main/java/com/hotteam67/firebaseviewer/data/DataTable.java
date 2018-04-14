@@ -159,6 +159,14 @@ public class DataTable implements Serializable {
             if (!preferredOrder.contains(cell.getKey()))
                 row.add(model);
         }
+
+        if (row.size() < mColumnHeaderList.size())
+        {
+            for (int i = 0; i < mColumnHeaderList.size() - row.size(); ++i)
+            {
+                row.add(new CellModel("0_0", "N/A"));
+            }
+        }
     }
 
     public DataTable(List<ColumnHeaderModel> columnNames, List<List<CellModel>> cellValues, List<RowHeaderModel> rowNames)

@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -419,10 +420,17 @@ public class MainActivity extends AppCompatActivity {
 
         LoadTBAData();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String databaseUrl = (String) prefs.getAll().get("pref_databaseUrl");
-        String eventName = (String) prefs.getAll().get("pref_eventName");
-        String apiKey = (String) prefs.getAll().get("pref_apiKey");
+        String[] values = GetConnectionProperties();
+
+        if (values == null)
+        {
+            Log.d("HotTeam67", "Couldn't load connection string");
+            return;
+        }
+
+        String databaseUrl = values[0];
+        String eventName = values[1];
+        String apiKey = values[3];
 
         final FirebaseHandler model = new FirebaseHandler(
                 databaseUrl, eventName, apiKey);
@@ -436,6 +444,28 @@ public class MainActivity extends AppCompatActivity {
 
             return null;
         });
+    }
+
+    /*
+    Get Preferences for web values
+     */
+    private String[] GetConnectionProperties()
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String connectionString = (String) prefs.getAll().get("pref_connectionString");
+        String[] values = connectionString.split(";");
+        if (values.length != 4)
+        {
+            new AlertDialog.Builder(this).setTitle("Invalid connection string! Use:\n" +
+                    "Firebase Url\n" +
+                    "Firebase Key\n" +
+                    "Firebase API Key\n" +
+                    "TBA Event Code\n" +
+                    "-> separated by semicolons").create().show();
+            return null;
+        }
+
+        return values;
     }
 
     /*
@@ -508,8 +538,13 @@ public class MainActivity extends AppCompatActivity {
     private void LoadTBAData()
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String matchCode = (String) prefs.getAll().get("pref_matchCode");
-        String matchKey = String.valueOf(Calendar.getInstance().get(Calendar.YEAR)) + matchCode;
+        String[] values = GetConnectionProperties();
+        if (values == null)
+        {
+            return;
+        }
+        String eventKey = values[0];
+        String matchKey = String.valueOf(Calendar.getInstance().get(Calendar.YEAR)) + eventKey;
 
         try
         {
@@ -647,6 +682,9 @@ public class MainActivity extends AppCompatActivity {
     {
         if (calculatedDataMaximums == null || calculatedDataAverages == null)
             return;
+
+        calculatedDataAverages.GetProcessor().SetTeamNumberFilter("");
+        calculatedDataMaximums.GetProcessor().SetTeamNumberFilter("");
 
         if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
             tableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
