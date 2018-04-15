@@ -2,15 +2,12 @@ package com.hotteam67.firebaseviewer.data;
 
 import android.util.Log;
 
-import com.annimon.stream.Stream;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.CellModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.ColumnHeaderModel;
 import com.hotteam67.firebaseviewer.tableview.tablemodel.RowHeaderModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +16,7 @@ import java.util.List;
  */
 
 public class DataTable implements Serializable {
-    private List<ColumnHeaderModel> mColumnHeaderList;
+    private List<ColumnHeaderModel> columnHeaderList;
     private List<List<CellModel>> cellList;
     private List<RowHeaderModel> rowHeaderList;
 
@@ -37,7 +34,7 @@ public class DataTable implements Serializable {
          */
         this.preferredOrder = preferredOrder;
 
-        mColumnHeaderList = new ArrayList<>();
+        columnHeaderList = new ArrayList<>();
         cellList = new ArrayList<>();
         rowHeaderList = new ArrayList<>();
 
@@ -70,22 +67,22 @@ public class DataTable implements Serializable {
                         HashMap<String, String> rowMap = (HashMap<String, String>) row.getValue();
 
                         for (SumColumn sumColumn : sumColumns)
-                            mColumnHeaderList.add(new ColumnHeaderModel(sumColumn.columnName));
+                            columnHeaderList.add(new ColumnHeaderModel(sumColumn.columnName));
 
                         for (String column : preferredOrder)
                         {
                             if (rowMap.keySet().contains(column))
                             {
-                                mColumnHeaderList.add(new ColumnHeaderModel(column));
+                                columnHeaderList.add(new ColumnHeaderModel(column));
                             }
                         }
 
                         // TeamNumber
                         rowMap.remove(TeamNumber);
-                        //mColumnHeaderList.add(new ColumnHeaderModel(TeamNumber));
+                        //columnHeaderList.add(new ColumnHeaderModel(TeamNumber));
                         for (HashMap.Entry<String, String> column : rowMap.entrySet()) {
                             if (!preferredOrder.contains(column.getKey()))
-                                mColumnHeaderList.add(new ColumnHeaderModel(column.getKey()));
+                                columnHeaderList.add(new ColumnHeaderModel(column.getKey()));
                         }
                     }
                     else
@@ -101,6 +98,13 @@ public class DataTable implements Serializable {
 
             ++row_id;
         }
+    }
+
+    public void Set(List<RowHeaderModel> rows, List<List<CellModel>> cells, List<ColumnHeaderModel> columns)
+    {
+        rowHeaderList = rows;
+        cellList = cells;
+        columnHeaderList = columns;
     }
 
     private void LoadRow(HashMap<String, String> rowMap, int yIndex)
@@ -160,9 +164,9 @@ public class DataTable implements Serializable {
                 row.add(model);
         }
 
-        if (row.size() < mColumnHeaderList.size())
+        if (row.size() < columnHeaderList.size())
         {
-            for (int i = 0; i < mColumnHeaderList.size() - row.size(); ++i)
+            for (int i = 0; i < columnHeaderList.size() - row.size(); ++i)
             {
                 row.add(new CellModel("0_0", "N/A"));
             }
@@ -171,7 +175,7 @@ public class DataTable implements Serializable {
 
     public DataTable(List<ColumnHeaderModel> columnNames, List<List<CellModel>> cellValues, List<RowHeaderModel> rowNames)
     {
-        mColumnHeaderList = columnNames;
+        columnHeaderList = columnNames;
         cellList = cellValues;
         rowHeaderList = rowNames;
     }
@@ -186,13 +190,13 @@ public class DataTable implements Serializable {
 
     public List<ColumnHeaderModel> GetColumns()
     {
-        return mColumnHeaderList;
+        return columnHeaderList;
     }
 
     public List<String> GetColumnNames()
     {
         List<String> nameList = new ArrayList<>();
-        for (ColumnHeaderModel model : mColumnHeaderList)
+        for (ColumnHeaderModel model : columnHeaderList)
             nameList.add(model.getData());
 
         return nameList;

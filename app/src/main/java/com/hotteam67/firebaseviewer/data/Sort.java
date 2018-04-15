@@ -66,8 +66,7 @@ public final class Sort {
         List<List<CellModel>> cells = input.GetCells();
         List<RowHeaderModel> rows = input.GetRowHeaders();
 
-        List<List<CellModel>> oldCells = new ArrayList<>();
-        oldCells.addAll(cells);
+        List<List<CellModel>> oldCells = new ArrayList<>(cells);
 
         cells = com.annimon.stream.Stream.of(cells).sorted((cells1, cells2) -> Compare(cells1.get(column).getData().toString(),
                 cells2.get(column).getData().toString())).collect(com.annimon.stream.Collectors.toList());
@@ -86,8 +85,9 @@ public final class Sort {
             newRows.set(newIndex, rows.get(i));
         }
 
+        input.Set(newRows, cells, columns);
 
-        return new DataTable(columns, cells, newRows);
+        return input;
     }
 
     public static int Compare(String item1, String item2)

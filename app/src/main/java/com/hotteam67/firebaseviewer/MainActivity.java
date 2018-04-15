@@ -322,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
             case CalculatedTableProcessor.Calculation.AVERAGE:
                 calculationState = CalculatedTableProcessor.Calculation.MAXIMUM;
                 ((Button)v).setText(AVG);
+                SyncOrder();
                 Update();
                 if (!matchSearchView.getText().toString().isEmpty())
                     matchSearchView.setText(matchSearchView.getText());
@@ -329,10 +330,53 @@ public class MainActivity extends AppCompatActivity {
             case CalculatedTableProcessor.Calculation.MAXIMUM:
                 calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
                 ((Button)v).setText(MAX);
+                SyncOrder();
                 Update();
                 if (!matchSearchView.getText().toString().isEmpty())
                     matchSearchView.setText(matchSearchView.getText());
                 break;
+        }
+    }
+
+    /*
+    Sync the order so both tables have the same order
+     */
+    private void SyncOrder()
+    {
+        DataTable currentTable = GetActiveTable();
+        DataTable inactiveTable = (GetActiveTable() == calculatedDataMaximums.GetProcessor()) ?
+                calculatedDataAverages.GetProcessor() : calculatedDataMaximums.GetProcessor();
+
+        List<RowHeaderModel> inactiveRowHeaders = inactiveTable.GetRowHeaders();
+        List<List<CellModel>> inactiveCells = inactiveTable.GetCells();
+        for (RowHeaderModel row : currentTable.GetRowHeaders())
+        {
+            try {
+                int rowIndex = currentTable.GetRowHeaders().indexOf(row);
+                String value = row.getData();
+                int inactiveRowIndex = -1;
+                for (RowHeaderModel potentialRow : inactiveRowHeaders) {
+                    if (potentialRow.getData().equals(value))
+                        inactiveRowIndex = inactiveRowHeaders.indexOf(potentialRow);
+                }
+                if (inactiveRowIndex == -1)
+                    continue;
+
+                // Switch the the row to where it should be and just move the other one
+                RowHeaderModel oldRow = inactiveRowHeaders.get(rowIndex);
+                List<CellModel> oldCells = inactiveCells.get(rowIndex);
+                RowHeaderModel newRow = inactiveRowHeaders.get(inactiveRowIndex);
+                List<CellModel> newCells = inactiveCells.get(inactiveRowIndex);
+
+                inactiveRowHeaders.set(rowIndex, newRow);
+                inactiveCells.set(rowIndex, newCells);
+                inactiveRowHeaders.set(inactiveRowIndex, oldRow);
+                inactiveCells.set(inactiveRowIndex, oldCells);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -537,7 +581,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void LoadTBAData()
     {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String[] values = GetConnectionProperties();
         if (values == null)
         {

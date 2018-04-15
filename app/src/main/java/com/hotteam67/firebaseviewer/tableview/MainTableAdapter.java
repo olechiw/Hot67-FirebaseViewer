@@ -26,7 +26,7 @@ public class MainTableAdapter extends AbstractTableAdapter<ColumnHeaderModel, Ro
         super(p_jContext);
     }
 
-    public DataTable rawDataTable;
+    private DataTable rawDataTable;
     private DataTable calculatedDataTable;
 
     @Override
