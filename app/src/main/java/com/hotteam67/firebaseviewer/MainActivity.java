@@ -645,7 +645,7 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
-            Log.e("[Matches Fetcher]", "Failed to get event: " + e.getMessage(), e);
+            Log.e("HotTeam67", "Failed to get event: " + e.getMessage(), e);
         }
     }
 

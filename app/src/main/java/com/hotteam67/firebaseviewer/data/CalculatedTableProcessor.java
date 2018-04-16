@@ -67,7 +67,7 @@ public class CalculatedTableProcessor implements Serializable {
         SetupCalculatedColumns(calculatedColumns);
     }
 
-    public void SetupCalculatedColumns(List<String> calculatedColumns)
+    private void SetupCalculatedColumns(List<String> calculatedColumns)
     {
         List<ColumnHeaderModel> calcColumnHeaders = new ArrayList<>();
         List<List<CellModel>> calcCells = new ArrayList<>();
@@ -111,7 +111,7 @@ public class CalculatedTableProcessor implements Serializable {
                             .getData().equals(teamNumber))
                         matches.add(row);
                 }
-                catch (Exception e)
+                catch (Exception ignored)
                 {
                 }
             }
@@ -202,8 +202,8 @@ public class CalculatedTableProcessor implements Serializable {
         return calculatedDataTable;
     }
 
-    public static double doCalculatedColumn(String columnName, List<String> columnValues,
-                                                 int calculation)
+    private static double doCalculatedColumn(String columnName, List<String> columnValues,
+                                             int calculation)
     {
         switch (calculation)
         {
@@ -269,7 +269,7 @@ public class CalculatedTableProcessor implements Serializable {
     Safely converts either a boolean or number string to a double, for averaging, minimizing and
     maximizing
      */
-    public static double ConvertToDouble(String s)
+    private static double ConvertToDouble(String s)
     {
         switch (s) {
             case "true":
