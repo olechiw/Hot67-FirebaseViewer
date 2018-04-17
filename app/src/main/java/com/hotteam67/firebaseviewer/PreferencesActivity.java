@@ -55,7 +55,7 @@ public class PreferencesActivity extends AppCompatActivity
                 if (pref instanceof EditTextPreference)
                 {
                     EditTextPreference etp = (EditTextPreference) pref;
-                    pref.setSummary(etp.getText());
+                    //pref.setSummary(etp.getText());
                 }
             }
         }
@@ -82,7 +82,7 @@ public class PreferencesActivity extends AppCompatActivity
         if (pref instanceof EditTextPreference)
         {
             EditTextPreference etp = (EditTextPreference) pref;
-            pref.setSummary(etp.getText());
+            //pref.setSummary(etp.getText());
         }
     }
 }

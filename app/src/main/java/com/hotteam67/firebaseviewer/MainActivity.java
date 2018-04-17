@@ -25,7 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.evrencoskun.tableview.TableView;
-import com.hotteam67.firebaseviewer.data.CalculatedTableProcessor;
+import com.hotteam67.firebaseviewer.data.DataTableBuilder;
 import com.hotteam67.firebaseviewer.data.ColumnSchema;
 import com.hotteam67.firebaseviewer.data.DataTable;
 import com.hotteam67.firebaseviewer.tableview.MainTableAdapter;
@@ -41,7 +41,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -63,12 +62,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText matchSearchView;
 
     // State for which calculation is currently in the UI
-    int calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
+    int calculationState = DataTableBuilder.Calculation.AVERAGE;
     DataTable rawData;
 
     // Both tables loaded into memory, meaning faster switching but slower loading
-    CalculatedTableProcessor calculatedDataAverages;
-    CalculatedTableProcessor calculatedDataMaximums;
+    DataTableBuilder calculatedDataAverages;
+    DataTableBuilder calculatedDataMaximums;
 
     // TBA-Pulled data, Rankings, Nicknames, and Schedule in sequential order
     private JSONObject teamNumbersRanks;
@@ -319,16 +318,16 @@ public class MainActivity extends AppCompatActivity {
     {
         switch (calculationState)
         {
-            case CalculatedTableProcessor.Calculation.AVERAGE:
-                calculationState = CalculatedTableProcessor.Calculation.MAXIMUM;
+            case DataTableBuilder.Calculation.AVERAGE:
+                calculationState = DataTableBuilder.Calculation.MAXIMUM;
                 ((Button)v).setText(AVG);
                 SyncOrder();
                 Update();
                 if (!matchSearchView.getText().toString().isEmpty())
                     matchSearchView.setText(matchSearchView.getText());
                 break;
-            case CalculatedTableProcessor.Calculation.MAXIMUM:
-                calculationState = CalculatedTableProcessor.Calculation.AVERAGE;
+            case DataTableBuilder.Calculation.MAXIMUM:
+                calculationState = DataTableBuilder.Calculation.AVERAGE;
                 ((Button)v).setText(MAX);
                 SyncOrder();
                 Update();
@@ -434,9 +433,9 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("StaticFieldLeak") AsyncTask task = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                calculatedDataAverages = (CalculatedTableProcessor)
+                calculatedDataAverages = (DataTableBuilder)
                         FileHandler.DeSerialize(FileHandler.AVERAGES_CACHE);
-                calculatedDataMaximums = (CalculatedTableProcessor)
+                calculatedDataMaximums = (DataTableBuilder)
                         FileHandler.DeSerialize(FileHandler.MAXIMUMS_CACHE);
                 rawData = (DataTable)
                         FileHandler.DeSerialize(FileHandler.RAW_CACHE);
@@ -474,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
 
         String databaseUrl = values[0];
         String eventName = values[1];
-        String apiKey = values[3];
+        String apiKey = values[2];
 
         final FirebaseHandler model = new FirebaseHandler(
                 databaseUrl, eventName, apiKey);
@@ -504,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
                     "Firebase Url\n" +
                     "Firebase Key\n" +
                     "Firebase API Key\n" +
-                    "TBA Event Code\n" +
+                    "TBA Event Key\n" +
                     "-> separated by semicolons").create().show();
             return null;
         }
@@ -521,13 +520,14 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("StaticFieldLeak") AsyncTask averagesTask = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                CalculatedTableProcessor averages = new CalculatedTableProcessor(
+                DataTableBuilder averages = new DataTableBuilder(
                         rawData,
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
+                        ColumnSchema.OutlierAdjustedColumns(),
                         teamNumbersRanks,
                         teamNumbersNames,
-                        CalculatedTableProcessor.Calculation.AVERAGE);
+                        DataTableBuilder.Calculation.AVERAGE);
                 SetCalculatedDataAverages(averages);
                 UpdateIfLoaded();
 
@@ -537,13 +537,14 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("StaticFieldLeak") AsyncTask maximumsTask = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                CalculatedTableProcessor maximums = new CalculatedTableProcessor(
+                DataTableBuilder maximums = new DataTableBuilder(
                         rawData,
                         ColumnSchema.CalculatedColumns(),
                         ColumnSchema.CalculatedColumnsRawNames(),
+                        ColumnSchema.OutlierAdjustedColumns(),
                         teamNumbersRanks,
                         teamNumbersNames,
-                        CalculatedTableProcessor.Calculation.MAXIMUM);
+                        DataTableBuilder.Calculation.MAXIMUM);
                 SetCalculatedDataMaximums(maximums);
                 UpdateIfLoaded();
 
@@ -554,12 +555,12 @@ public class MainActivity extends AppCompatActivity {
         maximumsTask.execute();
     }
 
-    private synchronized void SetCalculatedDataAverages(CalculatedTableProcessor table)
+    private synchronized void SetCalculatedDataAverages(DataTableBuilder table)
     {
         calculatedDataAverages = table;
     }
 
-    private synchronized void SetCalculatedDataMaximums(CalculatedTableProcessor table)
+    private synchronized void SetCalculatedDataMaximums(DataTableBuilder table)
     {
         calculatedDataMaximums = table;
     }
@@ -582,19 +583,18 @@ public class MainActivity extends AppCompatActivity {
     private void LoadTBAData()
     {
         String[] values = GetConnectionProperties();
-        if (values == null)
+        if (values == null || values.length != 4)
         {
             return;
         }
-        String eventKey = values[0];
-        String matchKey = String.valueOf(Calendar.getInstance().get(Calendar.YEAR)) + eventKey;
+        String eventKey = values[3];
 
         try
         {
             StringBuilder s = new StringBuilder();
 
             // Call api and load into csv
-            TBAHandler.Matches(matchKey, matches -> {
+            TBAHandler.Matches(eventKey, matches -> {
                 try {
                     for (List<List<String>> m : matches) {
                         List<String> redTeams = m.get(0);
@@ -619,7 +619,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Load into json
             try {
-                TBAHandler.TeamNames(matchKey, teamNames -> {
+                TBAHandler.TeamNames(eventKey, teamNames -> {
                     FileHandler.Write(FileHandler.TEAM_NAMES, teamNames.toString());
                     teamNumbersNames = teamNames;
                 });
@@ -629,7 +629,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             try {
-                TBAHandler.Rankings(matchKey, rankings ->
+                TBAHandler.Rankings(eventKey, rankings ->
                 {
                     FileHandler.Write(FileHandler.TEAM_RANKS, rankings.toString());
                     teamNumbersRanks = rankings;
@@ -729,7 +729,7 @@ public class MainActivity extends AppCompatActivity {
         calculatedDataAverages.GetProcessor().SetTeamNumberFilter("");
         calculatedDataMaximums.GetProcessor().SetTeamNumberFilter("");
 
-        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
+        if (calculationState == DataTableBuilder.Calculation.MAXIMUM)
             tableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
         else
             tableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
@@ -740,7 +740,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private DataTable GetActiveTable()
     {
-        if (calculationState == CalculatedTableProcessor.Calculation.MAXIMUM)
+        if (calculationState == DataTableBuilder.Calculation.MAXIMUM)
             return calculatedDataMaximums.GetProcessor();
         else
             return calculatedDataAverages.GetProcessor();

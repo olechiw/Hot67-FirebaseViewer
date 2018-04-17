@@ -11,7 +11,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,15 +18,16 @@ import java.util.List;
  * Created by Jakob on 1/19/2018.
  */
 
-public class CalculatedTableProcessor implements Serializable {
+public class DataTableBuilder implements Serializable {
     private DataTable rawDataTable;
     private List<String> columnsNames;
 
     private DataTable calculatedDataTable;
-    private HashMap<String, Integer> calculatedColumnHeaders;
     private String teamRanksJson;
     private String teamNamesJson;
     private List<Integer> calculatedColumnIndices;
+
+    private List<ColumnSchema.OutlierAdjustedColumn> outlierAdjustedColumns;
 
     public final static class Calculation implements Serializable
     {
@@ -38,15 +38,17 @@ public class CalculatedTableProcessor implements Serializable {
 
     private int calculationType;
 
-    public CalculatedTableProcessor(DataTable rawData, List<String> calculatedColumns,
-                                    List<String> columnIndices,
-                                    JSONObject teamRanks, JSONObject teamNames,
-                                    int calculationType)
+    public DataTableBuilder(DataTable rawData, List<String> calculatedColumns,
+                            List<String> columnIndices,
+                            List<ColumnSchema.OutlierAdjustedColumn> outlierAdjustedColumns,
+                            JSONObject teamRanks, JSONObject teamNames,
+                            int calculationType)
     {
         rawDataTable = rawData;
         teamNamesJson = teamNames.toString();
         columnsNames = rawData.GetColumnNames();
         this.teamRanksJson = teamRanks.toString();
+        this.outlierAdjustedColumns = outlierAdjustedColumns;
         calculatedColumnIndices = new ArrayList<>();
         for (int i = 0; i < calculatedColumns.size(); ++i)
         {
@@ -79,7 +81,9 @@ public class CalculatedTableProcessor implements Serializable {
         Load calculated column names
          */
         for (String s : calculatedColumns)
+        {
             calcColumnHeaders.add(new ColumnHeaderModel(s));
+        }
 
         /*
         Load every unique team number
@@ -134,12 +138,64 @@ public class CalculatedTableProcessor implements Serializable {
                 // Calculate
                 Double value = doCalculatedColumn(columnsNames.get(column), values, calculationType);
 
-                // Round
-                value = Math.floor(value * 1000) / 1000;
-
                 // Add cell to row
                 row.add(new CellModel(current_row + "_" + column, value.toString()));
             }
+
+            if (calculationType == Calculation.AVERAGE)
+            {
+                // Add adjusted-average columns
+                for (ColumnSchema.OutlierAdjustedColumn column : outlierAdjustedColumns)
+                {
+                    String targetColumn = column.sourceColumnName;
+                    String adjustmentColumn = column.adjustmentColumnName;
+
+                    if (!calculatedColumns.contains(targetColumn) || !calculatedColumns.contains(adjustmentColumn))
+                        continue;
+
+                    int targetIndex = calculatedColumns.indexOf(targetColumn);
+                    int adjustmentIndex = calculatedColumns.indexOf(adjustmentColumn);
+
+                    List<String> targetValues = new ArrayList<>();
+                    List<String> adjustmentValues = new ArrayList<>();
+
+                    try
+                    {
+                        for (List<CellModel> match : matches)
+                        {
+                            targetValues.add((String)match.get(targetIndex).getData());
+                            adjustmentValues.add((String)match.get(adjustmentIndex).getData());
+                        }
+
+                        List<String> outliers = new ArrayList<>();
+                        for (String value : targetValues)
+                        {
+                            int index = targetValues.indexOf(value);
+                            if (Outliers.IsBelowQuartile(value, targetValues, 1) &&
+                                    !Outliers.IsBelowQuartile(adjustmentValues.get(index), adjustmentValues, 1))
+                            {
+                                outliers.add(value);
+                            }
+                        }
+                        targetValues.removeAll(outliers);
+
+                        String cellValue = String.valueOf(doCalculatedColumn(column.columnName, targetValues, Calculation.AVERAGE));
+                        CellModel cell = new CellModel("0_0", cellValue);
+
+                        row.add(0, cell);
+
+                        if (current_row == 0)
+                        {
+                            calcColumnHeaders.add(0, new ColumnHeaderModel(column.columnName));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             // Add row to calculated list
             calcCells.add(row);
             calcRowHeaders.add(new RowHeaderModel(teamNumber));
@@ -164,6 +220,7 @@ public class CalculatedTableProcessor implements Serializable {
         }
 
         calcColumnHeaders.add(0, new ColumnHeaderModel("R"));
+        calculatedColumns.add(0, "R");
 
         List<String> extraTeams = new ArrayList<>();
         // Do N/A Teams
@@ -218,7 +275,7 @@ public class CalculatedTableProcessor implements Serializable {
                     }
 
                     d /= columnValues.size();
-                    return d;
+                    return Math.floor(d * 1000) / 1000;
                 }
                 catch (Exception e)
                 {
@@ -250,7 +307,7 @@ public class CalculatedTableProcessor implements Serializable {
                 {
                     return Stream.of(columnValues)
                             // Convert to number
-                            .mapToDouble(CalculatedTableProcessor::ConvertToDouble)
+                            .mapToDouble(DataTableBuilder::ConvertToDouble)
                             .min().getAsDouble();
                 }
                 catch (Exception e)

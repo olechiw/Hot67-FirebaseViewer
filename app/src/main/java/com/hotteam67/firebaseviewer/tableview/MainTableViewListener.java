@@ -52,9 +52,6 @@ public class MainTableViewListener implements ITableViewListener {
 
             DataTable table = Sort.BubbleSortAscendingByRowHeader(GetFormattedRawData(adapter, teamNumber));
 
-            if (table == null)
-                return;
-
             String calculatedColumnName =
                     adapter.GetCalculatedData().GetColumns().get(p_nXPosition).getData();
 

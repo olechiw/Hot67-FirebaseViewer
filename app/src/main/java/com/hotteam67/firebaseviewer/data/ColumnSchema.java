@@ -1,5 +1,6 @@
 package com.hotteam67.firebaseviewer.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,9 +49,9 @@ public class ColumnSchema {
         return calculatedColumnsIndices;
     }
 
-    public static List<DataTable.SumColumn> SumColumns()
+    public static List<SumColumn> SumColumns()
     {
-        DataTable.SumColumn column = new DataTable.SumColumn();
+        SumColumn column = new SumColumn();
         column.columnName = "Total Cubes";
         column.columnsNames = new ArrayList<>();
         column.columnsNames.add("Auton Scale");
@@ -61,9 +62,35 @@ public class ColumnSchema {
         column.columnsNames.add("Teleop Switch");
         column.columnsNames.add("Opponent Switch");
 
-        ArrayList<DataTable.SumColumn> sumColumns = new ArrayList<>();
+        ArrayList<SumColumn> sumColumns = new ArrayList<>();
         sumColumns.add(column);
 
         return sumColumns;
+    }
+
+    public static List<OutlierAdjustedColumn> OutlierAdjustedColumns()
+    {
+        List<OutlierAdjustedColumn> columns = new ArrayList<>();
+
+        OutlierAdjustedColumn column = new OutlierAdjustedColumn();
+        column.columnName = "VAS";
+        column.sourceColumnName = "T. Scale";
+        column.adjustmentColumnName = "Cubes";
+
+        columns.add(column);
+        return columns;
+    }
+
+    public static class SumColumn implements Serializable
+    {
+        public List<String> columnsNames;
+        public String columnName;
+    }
+
+    public static class OutlierAdjustedColumn implements Serializable
+    {
+        public String columnName;
+        public String sourceColumnName;
+        public String adjustmentColumnName;
     }
 }

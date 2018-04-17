@@ -24,10 +24,10 @@ public class DataTable implements Serializable {
 
     private final String TeamNumber = "Team Number";
 
-    private List<SumColumn> sumColumns;
+    private List<ColumnSchema.SumColumn> sumColumns;
 
     public DataTable(HashMap<String, Object> rawData, List<String> preferredOrder,
-                     List<SumColumn> sumColumns)
+                     List<ColumnSchema.SumColumn> sumColumns)
     {
         /*
         Load the Raw Data into model
@@ -66,7 +66,7 @@ public class DataTable implements Serializable {
                     {
                         HashMap<String, String> rowMap = (HashMap<String, String>) row.getValue();
 
-                        for (SumColumn sumColumn : sumColumns)
+                        for (ColumnSchema.SumColumn sumColumn : sumColumns)
                             columnHeaderList.add(new ColumnHeaderModel(sumColumn.columnName));
 
                         for (String column : preferredOrder)
@@ -122,7 +122,7 @@ public class DataTable implements Serializable {
         List<CellModel> row = cellList.get(yIndex);
 
         // Sum columns first
-        for (SumColumn sumColumn : sumColumns)
+        for (ColumnSchema.SumColumn sumColumn : sumColumns)
         {
             int value = 0;
             for (String columnToSum : sumColumn.columnsNames)
@@ -252,9 +252,4 @@ public class DataTable implements Serializable {
         return filteredRows;
     }
 
-    public static class SumColumn implements Serializable
-    {
-        public List<String> columnsNames;
-        public String columnName;
-    }
 }
