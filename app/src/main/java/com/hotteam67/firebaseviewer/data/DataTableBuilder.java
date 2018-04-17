@@ -171,8 +171,8 @@ public class DataTableBuilder implements Serializable {
                         for (String value : targetValues)
                         {
                             int index = targetValues.indexOf(value);
-                            if (Outliers.IsBelowQuartile(value, targetValues, 1) &&
-                                    !Outliers.IsBelowQuartile(adjustmentValues.get(index), adjustmentValues, 1))
+                            if (Outliers.IsBelowQuartile(value, targetValues, column.sourceQuartileDisallowed) &&
+                                    !Outliers.IsBelowQuartile(adjustmentValues.get(index), adjustmentValues, column.adjustmentQuartileDisallowed))
                             {
                                 outliers.add(value);
                             }

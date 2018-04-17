@@ -76,8 +76,10 @@ public class ColumnSchema {
         column.columnName = "VAS";
         column.sourceColumnName = "T. Scale";
         column.adjustmentColumnName = "Cubes";
+        column.sourceQuartileDisallowed = 2;
+        column.adjustmentQuartileDisallowed = 1;
 
-        columns.add(column);
+        //columns.add(column);
         return columns;
     }
 
@@ -92,5 +94,7 @@ public class ColumnSchema {
         public String columnName;
         public String sourceColumnName;
         public String adjustmentColumnName;
+        public Integer sourceQuartileDisallowed;
+        public Integer adjustmentQuartileDisallowed;
     }
 }
