@@ -301,8 +301,8 @@ public class MainActivity extends AppCompatActivity {
             }
             else
             {
-                calculatedDataAverages.GetProcessor().SetTeamNumberFilter(EMPTY);
-                tableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
+                calculatedDataAverages.GetTable().SetTeamNumberFilter(EMPTY);
+                tableAdapter.setAllItems(calculatedDataAverages.GetTable(), rawData);
             }
         }
         catch (Exception e)
@@ -343,8 +343,8 @@ public class MainActivity extends AppCompatActivity {
     private void SyncOrder()
     {
         DataTable currentTable = GetActiveTable();
-        DataTable inactiveTable = (GetActiveTable() == calculatedDataMaximums.GetProcessor()) ?
-                calculatedDataAverages.GetProcessor() : calculatedDataMaximums.GetProcessor();
+        DataTable inactiveTable = (GetActiveTable() == calculatedDataMaximums.GetTable()) ?
+                calculatedDataAverages.GetTable() : calculatedDataMaximums.GetTable();
 
         List<RowHeaderModel> inactiveRowHeaders = inactiveTable.GetRowHeaders();
         List<List<CellModel>> inactiveCells = inactiveTable.GetCells();
@@ -726,13 +726,10 @@ public class MainActivity extends AppCompatActivity {
         if (calculatedDataMaximums == null || calculatedDataAverages == null)
             return;
 
-        calculatedDataAverages.GetProcessor().SetTeamNumberFilter("");
-        calculatedDataMaximums.GetProcessor().SetTeamNumberFilter("");
-
         if (calculationState == DataTableBuilder.Calculation.MAXIMUM)
-            tableAdapter.setAllItems(calculatedDataMaximums.GetProcessor(), rawData);
+            tableAdapter.setAllItems(calculatedDataMaximums.GetTable(), rawData);
         else
-            tableAdapter.setAllItems(calculatedDataAverages.GetProcessor(), rawData);
+            tableAdapter.setAllItems(calculatedDataAverages.GetTable(), rawData);
     }
 
     /*
@@ -741,9 +738,9 @@ public class MainActivity extends AppCompatActivity {
     private DataTable GetActiveTable()
     {
         if (calculationState == DataTableBuilder.Calculation.MAXIMUM)
-            return calculatedDataMaximums.GetProcessor();
+            return calculatedDataMaximums.GetTable();
         else
-            return calculatedDataAverages.GetProcessor();
+            return calculatedDataAverages.GetTable();
     }
 
     /*
@@ -751,8 +748,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void SetTeamNumberFilter(String s)
     {
-        calculatedDataMaximums.GetProcessor().SetTeamNumberFilter(s);
-        calculatedDataAverages.GetProcessor().SetTeamNumberFilter(s);
+        calculatedDataMaximums.GetTable().SetTeamNumberFilter(s);
+        calculatedDataAverages.GetTable().SetTeamNumberFilter(s);
     }
 
     /*

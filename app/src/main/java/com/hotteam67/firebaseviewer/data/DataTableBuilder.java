@@ -254,7 +254,7 @@ public class DataTableBuilder implements Serializable {
         calculatedDataTable = new DataTable(calcColumnHeaders, calcCells, calcRowHeaders);
     }
 
-    public DataTable GetProcessor()
+    public DataTable GetTable()
     {
         return calculatedDataTable;
     }

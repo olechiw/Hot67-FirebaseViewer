@@ -1,21 +1,12 @@
 package com.hotteam67.firebaseviewer.data;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.support.annotation.NonNull;
-import android.view.View;
 
-import com.androidplot.Plot;
 import com.androidplot.util.PixelUtils;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.PointLabelFormatter;
-import com.androidplot.xy.PointLabeler;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.StepMode;
 import com.androidplot.xy.XYGraphWidget;
@@ -25,11 +16,7 @@ import com.hotteam67.firebaseviewer.MainActivity;
 import com.hotteam67.firebaseviewer.R;
 
 import java.text.DecimalFormat;
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
